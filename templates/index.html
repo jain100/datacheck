@@ -23,12 +23,14 @@
             <div class="col-md-4 col-sm-4">
                 <div class="dropdown">
                     <div class="point-center">
-                       {% comment %} <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
+                       {% comment %}
+                       <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
                             Games
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="#">No Game :(</a>
-                        </div>{% endcomment %}
+                        </div>
+                        {% endcomment %}
                         {% if connected == True %}
                         <a href={% url 'logout' %}>
                             <input type="button" value="logout" />
@@ -75,13 +77,13 @@
             <div id="sec1-sql" class="col-md-2 col-sm-2">
                 <div class="aside">
                     <ul class="list-group">
-                        <a href="" class="list-group-item active">Coding Area </a>
+                        <a id="code" href="#" class="list-group-item active">Coding Area </a>
                         <a class="list-group-item" href="{% url 'charting' %}">Charting Area</a>
-                        <a href="{% url 'staging' %}" class="list-group-item">Reporting Area</a>
+                        <a id="report" href="#sec4-sql" class="list-group-item">Reporting Area</a>
                     </ul>
                 </div>
             </div>
-            <div class="col-md-5 col-sm-5">
+            <div id="sec2-sql" class="col-md-5 col-sm-5">
                 <div class="main">
                     <div class="coding">
                         <i id="close" class="fa fa-close" alt="close" title="close"></i>
@@ -89,7 +91,6 @@
                                 <label for="area" style="margin-top: 5px;">Coding Ground:</label>
                                 <div class="form-group">
                                         <textarea class="form-control z-depth-1" id="area" placeholder="Enter your queries here."name="query" form="queryform">
-
                                         </textarea>
                                 </div>
                         </div>
@@ -99,31 +100,48 @@
             <div id="sec3-sql" class="col-md-5 col-sm-5">
                 <div class="main1">
                     <div class="container">
-                        <i id="close" class="fa fa-caret-right" alt="close" title="Shrink"></i>
+                      <i id="close" class="fa fa-caret-right" alt="close" title="Shrink"></i>
+                      {% for result in results %}
                         <div class="image">
                             <div class="options">
-                                    <button type="button" class="btn btn-primary btn-sm" >
+                                    <button id="btn{{forloop.counter}}" type="button" class="btn btn-primary btn-sm save" >
                                         <i class="fa fa-save" title="Save to Reporting area"></i>
                                     </button>
+                            </div>{% load static %}
+                            <div class="plot" id="plots{{forloop.counter}}" >
                             </div>
-                            <img class="image-in-images" src='{% static "Images/img1.png"  %}' class="mx-auto">
                         </div><hr><br>
-                        <div class="image">
-                                <div class="options">
-                                        <button type="button" class="btn btn-primary btn-sm" ><i class="fa fa-save" title="Save to Reporting area"></i></button>
-                                </div>
-                                <img class="image-in-images" src='{% static "Images/img2.png"  %}' class="mx-auto">
-                        </div><hr><br>
-                        <div class="image">
-                                <div class="options">
-                                        <button type="button" class="btn btn-primary btn-sm" ><i class="fa fa-save" title="Save to Reporting area"></i></button>
-                                </div>
-                                <img class="image-in-images" src='{% static "Images/img3.png"  %}' class="mx-auto">
-                        </div>                     
+                      {% endfor %}
                     </div>
                 </div>
-            </div>  
-
+            </div>
+            <div id="sec4-sql" class="col-md-10 col-sm-10">
+                <div class="main2">
+                    <div class="container">
+                      {% for result in results %}
+                        <div id="image{{forloop.counter}}" class="image draggable d-none">
+                            <div class="options">
+                                    <button id="btn-{{forloop.counter}}" type="button" class="btn btn-primary btn-sm save" >
+                                        <i class="fa fa-close" title="Save to Reporting area"></i>
+                                    </button>
+                            </div>{% load static %}
+                            <div class="plots" id="plotscopy{{forloop.counter}}">
+                            </div>
+                            <hr><br>
+                        </div>
+                      {% endfor %}
+                      <div class="image d-none draggable" id="multiple_plots_div">
+                        <div class="options" style="margin-bottom:30px">
+                                <button id="btn-multiple-plots" type="button" class="btn btn-primary btn-sm save" >
+                                    <i class="fa fa-close" title="Save to Reporting area"></i>
+                                </button>
+                        </div>
+                        <div id="multiple_plots_copy">
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
 
 
         <!--    <div id="sec3-sql" class="col-md-5 col-sm-5">
@@ -140,7 +158,7 @@
                         <div class="image">
                                 <i id="close" class="fa fa-close" alt="close" title="close"></i>
                                 <img class="image-in-images" src="Images/1490861424_783_the-worst-or-the-best-smashing-magazine.png" class="mx-auto">
-                        </div>                     
+                        </div>
                     </div>
                 </div>
             </div> -->
@@ -164,9 +182,99 @@
     </section>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src='{% static "script.js" %}'></script>
+    <script>
+
+      $(document).ready(function(){
+        $( ".draggable" ).draggable();
+        var chart_area_plots = [];
+          $('.plot-checkbox').click(function(){
+            if($(this).prop('checked')){
+              var id = $(this).attr('id');
+              {% for result in results %}
+                var title{{forloop.counter}} = "{{result.0}}";
+                if(id == title{{forloop.counter}}){
+                  var trace = {
+                            x: {{ result.1 |safe }},
+                            y: {{ result.2 |safe}},
+                            type: 'scatter',
+                            name: id
+                          };
+                  chart_area_plots.push(trace);
+                }
+              {% endfor %}
+              Plotly.newPlot('multiple_plots', chart_area_plots);
+              Plotly.newPlot('multiple_plots_copy', chart_area_plots);
+            }
+            else{
+              var id = $(this).attr('id');
+
+              for (var i=0;i<chart_area_plots.length;i++){
+                if(chart_area_plots[i]['name'] == id)
+                {
+                  chart_area_plots.splice( i, 1 );
+                  console.log(i);
+                  break;
+                }
+              }
+
+              Plotly.newPlot('multiple_plots', chart_area_plots);
+              Plotly.newPlot('multiple_plots_copy', chart_area_plots);
+            }
+          });
+          $('#btn-multiple-plots').on('click', function () {
+              $('#multiple_plots_div').addClass('d-none');
+              $('#mupltiple_plot_btn').removeAttr('disabled');
+
+          });
+          $('#mupltiple_plot_btn').click(function (e) {
+              $(this).attr('disabled', 'true');
+              $('#multiple_plots_div').removeClass('d-none');
+          });
+
+
+          var list = [];
+          {% if results %}
+          {% for result in results %}
+              var data{{forloop.counter}} = [{
+                  y: {{ result.2 |safe}},
+                  x: {{ result.1 |safe }},
+                  type: 'scatter',
+                  marker: {
+                      color: '#23b7e5',
+                  },
+              }];
+              var layout{{forloop.counter}} = {
+                  title: '{{result.0 }}',
+                  titlefont: {
+                      family: 'Droid Sans Mono',
+                      size: 36,
+                      color: '#000000'
+                  },
+                  margin: {l:200},
+              };
+
+              Plotly.newPlot('plots{{forloop.counter}}', data{{forloop.counter}}, layout{{forloop.counter}});
+              Plotly.newPlot('plotscopy{{forloop.counter}}', data{{forloop.counter}}, layout{{forloop.counter}});
+              $('#btn{{forloop.counter}}').click(function (e) {
+                  $(this).attr('disabled', 'true');
+                  $('#image{{forloop.counter}}').removeClass('d-none');
+              });
+              $('#btn-{{forloop.counter}}').on('click', function () {
+                  $('#image{{forloop.counter}}').addClass('d-none');
+                  $('#btn{{forloop.counter}}').removeAttr('disabled');
+
+              });
+            {% endfor %}
+            {% endif %}
+          });
+
+
+        </script>
   </body>
 </html>
