@@ -99,9 +99,7 @@ pyasn1-modules==0.2.1
 pycparser==2.18
 Pygments==2.2.0
 pymongo==3.6.0
-pyodbc==4.0.22
 pyparsing==2.2.0
-PyQt5==5.10.1
 pyreadline==2.1
 python-dateutil==2.5.0
 pytz==2018.3
