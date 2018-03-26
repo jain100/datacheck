@@ -18,7 +18,7 @@ $(document).ready(function() {
         sec3.css('transition-duration','1s');
         sec3.css('transition-timing-function','linear');
         $('.main1').css('border-left', '8px solid rgb(114, 114, 114)');
-        expand.show();  
+        expand.show();
     });
 
     expand.on('click', function() {
@@ -35,7 +35,45 @@ $(document).ready(function() {
         console.log("Hey");
         $('#area').val(str);
     });
+    var sec4 = $('#sec4-sql');
+    // var sec5 = $('#sec5-sql');
+    // var sec6 = $('#sec6-sql');
+    sec4.hide();
+    // sec5.hide();
+    // sec6.hide();
+    $('#code').on('click', function () {
+        $('#report').removeClass('active');
+        $('#chart').removeClass('active');
+        sec1.show();
+        sec2.show();
+        sec3.show();
+        sec4.hide();
+        // sec5.hide();
+        // sec6.hide();
+        $('#code').addClass('active');
+    });
 
-    
-    
+    $('#report').on('click', function () {
+        $('#code').removeClass('active');
+        $('#chart').removeClass('active');
+        sec1.show();
+        sec2.hide();
+        sec3.hide();
+        sec4.show();
+        // sec5.hide();
+        // sec6.hide();
+        $('#report').addClass('active');
+    });
+
+    $('#chart').on('click', function () {
+        $('#code').removeClass('active');
+        $('#report').removeClass('active');
+        sec1.show();
+        sec2.hide();
+        sec3.hide();
+        sec4.hide();
+        // sec5.show();
+        // sec6.show();
+        $('#chart').addClass('active');
+    })
 });

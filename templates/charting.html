@@ -230,7 +230,7 @@
 
                 <div class="main2" id="svgcontainer">
                 </div>
-            </div>  
+            </div>
 
 
         </div>
@@ -290,7 +290,7 @@
 
     <script src='{% static "script.js" %}'></script>
 
-    
+
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -337,7 +337,7 @@
         d3.selectAll("h6").remove();
         d3.selectAll("label").remove();
         graphType = x;
-        
+
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
             height = 550;
@@ -367,7 +367,7 @@
 
         var xAxis = d3.axisBottom(xScale);
         var yAxis = d3.axisLeft(yScale);
-  
+
 
         var xAxisVar = barXVar;
         var yAxisVar = barYVar;
@@ -381,7 +381,6 @@
               var sLabel = d3.select('#change_label_button')
                         .text("Change Label");
 
-                
                 d3.select('#chart_variables_list').append('br');
 
                 d3.select('#chart_variables_list_x')
@@ -443,6 +442,7 @@
 
               }
 
+
             d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
                 yAxisVar = this.value;
                 barYVar = yAxisVar;
@@ -501,7 +501,7 @@
                 changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
 
-        });
+
 
         function changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle){
           d3.selectAll("svg > *").remove();
@@ -549,8 +549,8 @@
             dataNew.sort(function(x, y){
               return d3.ascending(+x["key"], +y["key"]);
             })
-            
-                
+
+
 
             yScale.domain([0, d3.max(dataNew, function(d){ return d["value"]; })]).nice();
 
@@ -601,7 +601,7 @@
                 .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
                 .call(xAxis);
 
-            svg.append("text")             
+            svg.append("text")
               .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
               .style("text-anchor", "middle")
               .text(xAxisLabel);
@@ -618,7 +618,7 @@
 
             var tooltip = svg.append("g")
             .style("display", "none");
-              
+
             tooltip.append("rect")
             .attr("width", 60)
             .attr("height", 20)
@@ -654,7 +654,7 @@
         d3.selectAll("label").remove();
         d3.selectAll("br").remove();
         graphType = x;
-        
+
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
             height = 550;
@@ -683,8 +683,8 @@
         var xScale = d3.scaleLinear()
             .rangeRound([0, width - margin.right - margin.left]);
 
-        
-  
+
+
 
         var xAxisVar = histXVar;
         var binCount = globalHistBin;
@@ -692,7 +692,7 @@
 
         d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
-    
+
 
               var dataValues = d3.values(data)[0];
 
@@ -748,6 +748,7 @@
                 xAxisLabel = document.getElementById("xAxisLabel").value;
                 yAxisLabel = document.getElementById("yAxisLabel").value;
                 changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount); 
+
             });
 
             sB.on('click', function(){
@@ -834,11 +835,11 @@
                   .call(xAxis);
 
 
-                svg.append("text")             
+                svg.append("text")
               .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 30) + ")")
               .style("text-anchor", "middle")
               .text(xAxisLabel);
-              
+
 
               svg.append("g")
               .attr("class", "y axis")
@@ -866,7 +867,7 @@
 
                 var tooltip = svg.append("g")
             .style("display", "none");
-              
+
             tooltip.append("rect")
             .attr("width", 60)
             .attr("height", 20)
@@ -899,7 +900,7 @@
         d3.selectAll("h6").remove();
         d3.selectAll("label").remove();
         graphType = x;
-        
+
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
             height = 550,
@@ -934,7 +935,6 @@
 
               var sLabel = d3.select('#change_label_button')
                         .text("Change Label");
-
                 
                 d3.select('#chart_variables_list').append('br');
 
@@ -1066,7 +1066,6 @@
 
         function changePie(data, xAxisVar, yAxisVar, operation, chartTitle){
             d3.selectAll("svg > *").remove();
-
             svg.append('text')
             .attr('id','menu_icon')
             .attr('font-family', 'FontAwesome')
@@ -1176,7 +1175,7 @@
 
                 var tooltip = svg.append("g")
             .style("display", "none");
-              
+
             tooltip.append("rect")
             .attr("width", 60)
             .attr("height", 20)
@@ -1209,7 +1208,7 @@
         d3.selectAll("h6").remove();
         d3.selectAll("label").remove();
         graphType = x;
-        
+
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
             height = 550;
@@ -1238,7 +1237,7 @@
 
         var xAxis = d3.axisBottom(xScale);
         var yAxis = d3.axisLeft(yScale);
-  
+
 
         var xAxisVar = lineXVar;
         var yAxisVar = lineYVar.slice();
@@ -1253,8 +1252,7 @@
 
               var sLabel = d3.select('#change_label_button')
                         .text("Change Label");
-
-                
+               
                 d3.select('#chart_variables_list').append('br');
 
                d3.select('#chart_variables_list_x')
@@ -1439,7 +1437,7 @@
                 dataNew.sort(function(x, y){
                   return d3.ascending(+x["key"], +y["key"]);
                 })
-   
+
             var maxYAxisDom = d3.max(dataNew, function(d){ return d["value"]; });
 
 
@@ -1468,7 +1466,7 @@
                 .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
                 .call(xAxis);
 
-            svg.append("text")             
+            svg.append("text")
               .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
               .style("text-anchor", "middle")
               .text(xAxisLabel);
@@ -1485,7 +1483,7 @@
 
             var tooltip = svg.append("g")
             .style("display", "none");
-              
+
             tooltip.append("rect")
             .attr("width", 60)
             .attr("height", 20)
@@ -1499,7 +1497,7 @@
             .style("text-anchor", "middle")
             .attr("font-size", "12px")
             .attr("font-weight", "bold");
-          
+
         }
 
             var dataArray = [];
@@ -1588,8 +1586,8 @@
                 .attr("d", function(d){ return lineGen(d);})
                 .attr("stroke", function(d, i){return colorScale(i);})
                 .attr("stroke-width", 2)
-                .attr("fill", "none")    
-                .on("mouseout", function() { tooltip.style("display", "none"); }) 
+                .attr("fill", "none")
+                .on("mouseout", function() { tooltip.style("display", "none"); })
                 .on("mousemove", function(d) {
                   var xPosition = d3.mouse(this)[0];
                   var yPosition = d3.mouse(this)[1];
@@ -1598,7 +1596,7 @@
                   tooltip.attr("transform", "translate(" + xPosition + "," + (d3.mouse(this)[1] -25 + ")"));
                   tooltip.select("text").text( (+value).toFixed(3));
                 });
-             
+
 
                 var legend = svg.append("g")
     .attr("class", "legend")
@@ -1628,8 +1626,8 @@
 
       });
 
-            
-            
+
+
 
 }
     }
