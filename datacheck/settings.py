@@ -30,7 +30,7 @@ SECRET_KEY = '-d)2=vllxl_d8d_5pfjdbg+p545m94go-ba&olq-6j+6bg^&86'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['35.198.225.68','127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['35.185.179.58','127.0.0.1', 'localhost']
 
 DEFAULT_FILE_STORAGE = 'storages.backends.gs.GSBotoStorage'
 
