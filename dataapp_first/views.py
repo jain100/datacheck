@@ -34,16 +34,19 @@ def html_to_list(table_html):
     data_rows = headings + [[data.text.strip() for data in row.find_all('td')] for row in rows[1:]]
     index = []
     # print(data_rows[0].index('DAY'),data_rows[0].index('MONTH'),data_rows[0].index('YEAR'))
+    print(data_rows[0])
     data_rows[0].pop(0)
     index.append(data_rows[0].index('DAY'))
     index.append(data_rows[0].index('MONTH'))
     index.append(data_rows[0].index('YEAR'))
+    print(index)
     for data_row in data_rows:
         date = data_row[index[2]] + '-' + data_row[index[1]] + '-' + data_row[index[0]]
-        data_row.pop(index[0])
         data_row.pop(index[1])
+        data_row.pop(index[0])
         data_row.pop()
         data_row.append(date)
+    print(data_rows[0])
     return data_rows
 
 def takeSecond(elem):
