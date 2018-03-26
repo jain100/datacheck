@@ -9,7 +9,7 @@ $(document).ready(function() {
     var sec2 = $('#sec2-sql');
     var sec3 = $('#sec3-sql');
 
-
+    console.log(sec2);
     var close = $('#close-sql');
     close.on('click', function() {
         sec2.hide();
@@ -22,6 +22,7 @@ $(document).ready(function() {
     });
 
     expand.on('click', function() {
+        console.log("you are here")
         sec2.show();
         sec3.removeClass("col-md-10");
         sec3.addClass("col-md-5");
