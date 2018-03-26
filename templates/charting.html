@@ -19,15 +19,108 @@
     <style type="text/css">
         .chart_type{
             width: 100%;
-            padding-top: 50px;
-            height: 70px;
+            padding-top: 10px;
+            height: 50px;
+            margin-top: 30px;
         }
         .chart_option{
             display: inline;
-            margin-right: 10px;
             cursor: pointer;
-            padding-right: 5px;
-            border-right: 1px solid #cccccc;
+            padding: 5px 10px;
+            border-radius: 2px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        #chart_variables_list{
+            margin-top: 20px;
+        }
+        .file_list_item{
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            font-weight: 400;
+            color: #212529;
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+        }
+        .file_list_item:hover{
+            color: #5555ee;
+        }
+        .modal_menu_options{
+            width: 250px;
+            margin-top: 45vh;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .modal_label_inputs{
+            width: 250px;
+            margin-top: 45vh;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .label_input{
+            border-collapse: collapse;
+            margin-bottom: 5px;
+            border-radius: 2px;
+            border: 0.5px solid #cccccc;
+            padding-left: 3px;
+        }
+        .main2 {
+            margin: 0;
+            background: white;
+            height: 100%;
+        }
+        #chart_variables_list_x{
+            width: 49%;
+            float: left;
+        }
+        #chart_variables_list_y{
+            width: 49%;
+            float: right;
+        }
+        #chart_operations_list{
+            width: 100%;
+            float: left;
+        }
+        .checkbox_options_x{
+            height: 18px;
+          width: 18px;
+          background-color: #eee;
+        }
+        .checkbox_options_y{
+            height: 18px;
+          width: 18px;
+          background-color: #eee;
+        }
+        .checkbox_options_label_x{
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        .checkbox_options_label_y{
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        .checkbox_operations{
+            height: 18px;
+          width: 18px;
+          background-color: #eee;
+        }
+        .checkbox_operations_label{
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        input[type="radio"] {
+          margin-top: -5px;
+          vertical-align: middle;
+        }
+        #histBins{
+            margin-top: 10px;
+            float: left;
+        }
+        #change_bins_button{
+            float: left;
         }
     </style>
   </head>
@@ -35,6 +128,7 @@
      <form method="post" id="queryform" enctype="multipart/form-data">{% csrf_token %}</form>
     <section class="sec point" id="sec1">
         <div class="row">
+            {% if connected == True %}
             <div class="col-md-4 col-sm-4">
                 <div class="dropdown">
                     <div class="point-center">
@@ -44,14 +138,40 @@
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="#">No Game :(</a>
                         </div>{% endcomment %}
-                         {% if connected == True %}
+                         
                         <a href={% url 'logout' %}>
                             <input type="button" value="logout" />
                         </a>
-                        {% endif %}
+                        
                     </div>
                 </div>
             </div>
+            {% endif %}
+
+
+            <div class="col-md-4 col-sm-4">
+                <div class="dropdown">
+                    <div class="point-center">
+                        <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
+                            Files
+                        </button>
+                        <div class="dropdown-menu">
+                            {% if documents %}
+                              {% for document in documents %}
+                                <form class="file_list_item" action="{% url 'docaccess' %}" method="post" enctype="multipart/form-data">
+                                  {% csrf_token %}
+                                  <label for="url"></label>
+                                  <input id="url" type="hidden" name="url" value="{{ document.docfile.name }}">
+                                  <input class="file_list_item" type="submit" value="{{ document.docfile.name }}">
+                                </form>
+                              {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
         {% if connected == True %}
                  <div class="col-md-4 col-sm-4">
                 <div class="point-center">
@@ -61,15 +181,8 @@
                 </div>
             </div>
             {% endif %}
-            <div class="col-md-4 col-sm-4">
-                <div class="point-center">
-                    <button type="submit" class="btn refresh" title="Refresh" id="run_query" form="queryform">
-                        Run Query
-                        <i id="refresh" class="fa fa-refresh"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-4">
+            
+            <div class="col-md-4 col-sm-4 right">
                     <div class="dropdown">
                         <div class="point-center">
                             <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
@@ -87,25 +200,6 @@
 
     <section class="sec" id="sec2">
 
-
-    <div style="margin-top: 50px;">
-
-        {% if documents %}
-        <ul>
-          {% for document in documents %}
-            <form action="{% url 'docaccess' %}" method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              <label for="url"></label>
-              <input id="url" type="hidden" name="url" value="{{ document.docfile.name }}">
-              <input type="submit" value="{{ document.docfile.name }}">
-            </form>
-          {% endfor %}
-          </ul>
-          {% else %}
-              <p>No documents.</p>
-          {% endif %}
-
-
     </div>
 
 
@@ -119,16 +213,12 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-3" id="chart_options" style="padding-top: 50px;">
-                <input type="text" name="chartTitle" id="chartTitle" placeholder="Chart Title">
-                <button type="button" id="chartTitleButton">Change Title</button>
-                <input type="text" name="xAxisLabel" id="xAxisLabel" placeholder="xAxisLabel">
-                <input type="text" name="yAxisLabel" id="yAxisLabel" placeholder="yAxisLabel">
-                <button type="button" id="change_label_button">Change Label</button>
-                <input type="text" name="histBins" id="histBins" placeholder="No. Of Columns">
-                <button type="button" id="change_bins_button">Change Columns</button>
-                <input type="text" name="numberY" id="numberY" placeholder="No. Of Y-Axis Variables">
-                <button type="button" id="change_yaxis_vars">Set Number of Y-Axis Vars</button>
+            <div class="col-md-3 col-sm-3" id="chart_variables_list">
+                <div id="chart_variables_list_x"></div>
+                <div id="chart_variables_list_y"></div>
+                <div id="chart_operations_list"></div>
+                <input type="text" name="histBins" id="histBins" placeholder="No. Of Columns" style="display: none;">
+                <button type="button" id="change_bins_button" style="display: none;">Change Columns</button>
             </div>
             <div id="sec3-sql" class="col-md-7 col-sm-7">
                 <div class="chart_type">
@@ -138,8 +228,7 @@
                     <div class="chart_option" id="line_option" onclick="setGraphType('line')">Line Graph</div>
                 </div>
 
-                <div class="main1" id="svgcontainer">
-                    
+                <div class="main2" id="svgcontainer">
                 </div>
             </div>  
 
@@ -147,7 +236,39 @@
         </div>
     </section>
 
-    <section class="sec" id="sec3">
+    <section>
+        <div id="myModal1" class="modal fade modal_menu_options" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-body">
+                    <button id="change_chart_labels_button" type="button" 
+                    class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#myModal2">Change Labels</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="myModal2" class="modal fade modal_label_inputs" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-body">
+                    <input class="label_input" type="text" name="chartTitle" id="chartTitle" placeholder="Chart Title">
+                    <br>
+                    <input class="label_input" type="text" name="xAxisLabel" id="xAxisLabel" placeholder="xAxisLabel">
+                    <br>
+                    <input class="label_input" type="text" name="yAxisLabel" id="yAxisLabel" placeholder="yAxisLabel">
+                    <br>
+                    <button type="button" class="btn btn-success" id="change_label_button" data-dismiss="modal">Change Label </button>
+                    <br>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sec" id="sec3" style="margin-top: 30px;">
         <div class="row">
             <div class="col-md-9 col-sm-9">
                 <div class="buttons">
@@ -166,6 +287,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
     <script src='{% static "script.js" %}'></script>
 
     
@@ -175,6 +297,25 @@
 
     <script type="text/javascript">
 
+    var xAxisLabel = "";
+    var yAxisLabel = "";
+    var chartTitle = "";
+
+    var barXVar = "";
+    var barYVar = "";
+    var barOp = "";
+
+    var histXVar = "";
+    var globalHistBin = "";
+
+    var pieXVar = "";
+    var pieYVar = "";
+    var pieOp = "";
+
+    var lineXVar = "";
+    var lineYVar = [];
+    var lineOp = "";
+
     function setGraphType(x){
 
         if(x=="bar") {
@@ -182,26 +323,24 @@
         document.getElementById('histBins').style.display = "none";
         document.getElementById('change_bins_button').style.display = "none";
 
-        document.getElementById('numberY').style.display = "none";
-        document.getElementById('change_yaxis_vars').style.display = "none";
-
         document.getElementById('bar_option').style.backgroundColor= "#cccccc";
         document.getElementById('histogram_option').style.backgroundColor= "#eaeaea";
         document.getElementById('pie_option').style.backgroundColor= "#eaeaea";
         document.getElementById('line_option').style.backgroundColor= "#eaeaea";
 
-        document.getElementById('xAxisLabel').style.display = "block";
-        document.getElementById('yAxisLabel').style.display = "block";
-        document.getElementById('change_label_button').style.display = "block";
 
         d3.selectAll("svg").remove();
         d3.selectAll("select").remove();
         d3.selectAll("br").remove();
+        d3.selectAll("input[type='radio']").remove();
+        d3.selectAll("input[type='checkbox']").remove();
+        d3.selectAll("h6").remove();
+        d3.selectAll("label").remove();
         graphType = x;
         
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
-            height = 500;
+            height = 550;
 
         var svg = d3.select("#svgcontainer")
             .append("svg:svg")
@@ -209,6 +348,15 @@
             .attr("height", "100%")
             .attr("viewBox", "0 0 " + width + " " + height);
 
+        svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' }); 
 
         var yScale = d3.scaleLinear()
             .range([height - margin.top - margin.bottom, 0]);
@@ -221,85 +369,152 @@
         var yAxis = d3.axisLeft(yScale);
   
 
-        var xAxisVar = "";
-        var yAxisVar = "";
-        var operation = "";
-        var xAxisLabel = "";
-        var yAxisLabel = "";
-        var chartTitle = "";
-
-
+        var xAxisVar = barXVar;
+        var yAxisVar = barYVar;
+        var operation = barOp;
 
 
         d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
               var dataValues = d3.values(data)[0];
 
-              var sTitle = d3.select('#chartTitleButton');
-
-              d3.select('#chart_options').append('br');
-
               var sLabel = d3.select('#change_label_button')
                         .text("Change Label");
 
                 
-                d3.select('#chart_options').append('br');
+                d3.select('#chart_variables_list').append('br');
 
-              var sX = d3.select('#chart_options').append('select');
-              sX.append('option').text('X Axis Var');
+                d3.select('#chart_variables_list_x')
+                    .append('h6')
+                    .text('Categorical');
+
+                d3.select('#chart_variables_list_y')
+                    .append('h6')
+                    .text('Value');
+
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
-                sX.append('option').text(Object.keys(dataValues)[i]);
+                 d3.select('#chart_variables_list_x')
+                    .append('input')
+                        .attr('type','radio')
+                        .attr('name', 'checkbox_options_x')
+                        .attr("id",'xOption'+i)
+                        .attr('class', 'checkbox_options_x')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_x')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_x')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_x')
+                    .append('br');
+
               }
 
-              d3.select('#chart_options').append('br');
+            d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
+                xAxisVar = this.value;
+                barXVar = xAxisVar;
+                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+            });
 
-              var sY = d3.select('#chart_options').append('select');
-              sY.append('option').text('Y Axis Var');
-              for(var i=0; i<Object.keys(dataValues).length; i++ ){
-                sY.append('option').text(Object.keys(dataValues)[i]);
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                if(document.getElementById('xOption'+i).value == barXVar){
+                    d3.select('#xOption'+i).property('checked', true);
+                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
+            }
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                 d3.select('#chart_variables_list_y')
+                    .append('input')
+                        .attr('type','radio')
+                        .attr('name', 'checkbox_options_y')
+                        .attr("id",'yOption'+i)
+                        .attr('class', 'checkbox_options_y')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_y')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_y')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_y')
+                    .append('br');
+
               }
 
-              d3.select('#chart_options').append('br');
-
-              var sO = d3.select('#chart_options').append('select');
-              sO.append('option').text('Operation');
-              sO.append('option').text("Sum");
-              sO.append('option').text("Average");
-              sO.append('option').text("Max");
-              sO.append('option').text("Min");
-
-
-  
-            sX.on('change',function(){
-              xAxisVar = this.options[this.selectedIndex].value;
-              changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
-            });
-              
-
-            sY.on('change',function(){
-              yAxisVar = this.options[this.selectedIndex].value;
-              changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+            d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
+                yAxisVar = this.value;
+                barYVar = yAxisVar;
+                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
 
-            sO.on('change',function(){
-              operation = this.options[this.selectedIndex].value;
-              changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                if(document.getElementById('yOption'+i).value == barYVar){
+                    d3.select('#yOption'+i).property('checked', true);
+                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
+            }
+
+
+            d3.select('#chart_operations_list')
+                    .append('h6')
+                    .style('margin-top', '30px')
+                    .text('Operation');
+
+            var opArray = ['Sum', 'Average', 'Max', 'Min'];
+
+            for(var i=0; i<4; i++){
+                d3.select('#chart_operations_list').append('input')
+                    .attr('type','radio')
+                    .attr('name', 'checkbox_operations')
+                    .attr('class', 'checkbox_operations')
+                    .attr('id', 'barOpOption'+i)
+                    .property('value',opArray[i]);
+                d3.select('#chart_operations_list')
+                        .append('label')
+                            .text(opArray[i])
+                            .attr('class', 'checkbox_operations_label')
+                            .style('display', 'inline');
+                 d3.select('#chart_operations_list').append('br'); 
+            }
+
+
+            d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
+                operation = this.value;
+                barOp = operation;
+                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
+
+            for(var i=0; i<4; i++ ){
+                if(document.getElementById('barOpOption'+i).value == barOp){
+                    d3.select('#barOpOption'+i).property('checked', true);
+                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
+            }
+
 
             sLabel.on('click', function(){
+                chartTitle = document.getElementById("chartTitle").value;
                 xAxisLabel = document.getElementById("xAxisLabel").value;
                 yAxisLabel = document.getElementById("yAxisLabel").value;
                 changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
 
-            sTitle.on('click', function(){
-                chartTitle = document.getElementById("chartTitle").value;
-                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);  
-            });
         });
 
         function changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle){
           d3.selectAll("svg > *").remove();
+            svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' }); 
+
             var dataNew;
             if(operation == "Average") {
               dataNew=d3.nest()
@@ -393,7 +608,7 @@
 
             d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", -20)
+                .attr("y", 0)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -425,34 +640,41 @@
         document.getElementById('histBins').style.display = "block";
         document.getElementById('change_bins_button').style.display = "block";
 
-        document.getElementById('numberY').style.display = "none";
-        document.getElementById('change_yaxis_vars').style.display = "none";
-
         document.getElementById('bar_option').style.backgroundColor= "#eaeaea";
         document.getElementById('histogram_option').style.backgroundColor= "#cccccc";
         document.getElementById('pie_option').style.backgroundColor= "#eaeaea";
         document.getElementById('line_option').style.backgroundColor= "#eaeaea";
 
 
-        document.getElementById('xAxisLabel').style.display = "block";
-        document.getElementById('yAxisLabel').style.display = "block";
-        document.getElementById('change_label_button').style.display = "block";
-
-
         d3.select("svg").remove();
         d3.selectAll("select").remove();
+        d3.selectAll("input[type='radio']").remove();
+        d3.selectAll("input[type='checkbox']").remove();
+        d3.selectAll("h6").remove();
+        d3.selectAll("label").remove();
         d3.selectAll("br").remove();
         graphType = x;
         
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
-            height = 500;
+            height = 550;
 
         var svg = d3.select("#svgcontainer")
             .append("svg:svg")
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", "0 0 " + width + " " + height);
+
+
+        svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' }); 
 
 
         var yScale = d3.scaleLinear()
@@ -464,13 +686,8 @@
         
   
 
-        var xAxisVar = "";
-        var yAxisVar = "";
-        var operation = "";
-        var xAxisLabel = "";
-        var yAxisLabel = "";
-        var chartTitle = "";
-        var binCount = "";
+        var xAxisVar = histXVar;
+        var binCount = globalHistBin;
 
 
         d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
@@ -479,47 +696,63 @@
 
               var dataValues = d3.values(data)[0];
 
-              var sTitle = d3.select('#chartTitleButton');
-
-              d3.select('#chart_options').append('br');
 
               var sLabel = d3.select('#change_label_button')
                         .text("Change Label");
 
                 
-                d3.select('#chart_options').append('br');
+                d3.select('#chart_variables_list').append('br');
 
-              var sX = d3.select('#chart_options').append('select');
-              sX.append('option').text('X Axis Var');
+              d3.select('#chart_variables_list_x')
+                    .append('h6')
+                    .text('Categorical');
+
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
-                sX.append('option').text(Object.keys(dataValues)[i]);
+                 d3.select('#chart_variables_list_x')
+                    .append('input')
+                        .attr('type','radio')
+                        .attr('name', 'checkbox_options_x')
+                        .attr("id",'xOption'+i)
+                        .attr('class', 'checkbox_options_x')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_x')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_x')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_x')
+                    .append('br');
+
               }
 
-              d3.select('#chart_options').append('br');
-
-
-
-              var sB = d3.select('#change_bins_button');
-  
-            sX.on('change',function(){
-              xAxisVar = this.options[this.selectedIndex].value;
-              changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
-            });
-              
-
-            sLabel.on('click', function(){
-                xAxisLabel = document.getElementById("xAxisLabel").value;
-                yAxisLabel = document.getElementById("yAxisLabel").value;
+            d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
+                xAxisVar = this.value;
+                histXVar = xAxisVar;
                 changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
             });
 
-            sTitle.on('click', function(){
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                if(document.getElementById('xOption'+i).value == histXVar){
+                    d3.select('#xOption'+i).property('checked', true);
+                    changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                }
+            }
+
+
+            var sB = d3.select('#change_bins_button');
+              
+
+            sLabel.on('click', function(){
                 chartTitle = document.getElementById("chartTitle").value;
-                changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);  
+                xAxisLabel = document.getElementById("xAxisLabel").value;
+                yAxisLabel = document.getElementById("yAxisLabel").value;
+                changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount); 
             });
 
             sB.on('click', function(){
                 binCount = document.getElementById("histBins").value;
+                globalHistBin = binCount;
                 changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);  
             });
         });
@@ -527,6 +760,17 @@
 
         function changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount){
             d3.selectAll("svg > *").remove();
+
+            svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' }); 
+
             var dataNew;
             var map = data.map(function(d){ return +d[xAxisVar]});
 
@@ -611,7 +855,7 @@
 
                 d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", -20)
+                .attr("y", 0)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -642,26 +886,23 @@
         document.getElementById('histBins').style.display = "none";
         document.getElementById('change_bins_button').style.display = "none";
 
-        document.getElementById('numberY').style.display = "none";
-        document.getElementById('change_yaxis_vars').style.display = "none";
-
         document.getElementById('bar_option').style.backgroundColor= "#eaeaea";
         document.getElementById('histogram_option').style.backgroundColor= "#eaeaea";
         document.getElementById('pie_option').style.backgroundColor= "#cccccc";
         document.getElementById('line_option').style.backgroundColor= "#eaeaea";
 
-        document.getElementById('xAxisLabel').style.display = "none";
-        document.getElementById('yAxisLabel').style.display = "none";
-        document.getElementById('change_label_button').style.display = "none";
-
         d3.select("svg").remove();
         d3.selectAll("select").remove();
         d3.selectAll("br").remove();
+        d3.selectAll("input[type='radio']").remove();
+        d3.selectAll("input[type='checkbox']").remove();
+        d3.selectAll("h6").remove();
+        d3.selectAll("label").remove();
         graphType = x;
         
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
-            height = 500,
+            height = 550,
             radius = Math.min(width, height) / 2;;
 
         var svg = d3.select("#svgcontainer")
@@ -670,80 +911,171 @@
             .attr("height", "100%")
             .attr("viewBox", "0 0 " + width + " " + height);
 
+
+        svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' });  
         
   
 
-        var xAxisVar = "";
-        var chartTitle = ""
-        var yAxisVar="";
-        var operation="";
+        var xAxisVar = pieXVar;
+        var yAxisVar=pieYVar;
+        var operation=pieOp;
 
         d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
               var dataValues = d3.values(data)[0];
 
-              var sTitle = d3.select('#chartTitleButton');
-
-              d3.select('#chart_options').append('br');
-
               var sLabel = d3.select('#change_label_button')
                         .text("Change Label");
 
                 
-                d3.select('#chart_options').append('br');
+                d3.select('#chart_variables_list').append('br');
 
 
-              var sX = d3.select('#chart_options').append('select');
-              sX.append('option').text('Categorical Column');
+              d3.select('#chart_variables_list_x')
+                    .append('h6')
+                    .text('Categorical');
+
+                d3.select('#chart_variables_list_y')
+                    .append('h6')
+                    .text('Value');
+
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
-                sX.append('option').text(Object.keys(dataValues)[i]);
+                 d3.select('#chart_variables_list_x')
+                    .append('input')
+                        .attr('type','radio')
+                        .attr('name', 'checkbox_options_x')
+                        .attr("id",'xOption'+i)
+                        .attr('class', 'checkbox_options_x')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_x')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_x')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_x')
+                    .append('br');
+
               }
 
-              d3.select('#chart_options').append('br');
+            d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
+                xAxisVar = this.value;
+                pieXVar = xAxisVar;
+                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+            });
 
-              var sY = d3.select('#chart_options').append('select');
 
-              sY.append('option').text('Value Column');
-              for(var i=0; i<Object.keys(dataValues).length; i++ ){
-                sY.append('option').text(Object.keys(dataValues)[i]);
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                if(document.getElementById('xOption'+i).value == pieXVar){
+                    d3.select('#xOption'+i).property('checked', true);
+                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                }
+            }
+
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                 d3.select('#chart_variables_list_y')
+                    .append('input')
+                        .attr('type','radio')
+                        .attr('name', 'checkbox_options_y')
+                        .attr("id",'yOption'+i)
+                        .attr('class', 'checkbox_options_y')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_y')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_y')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_y')
+                    .append('br');
+
               }
 
-            d3.select('#chart_options').append('br');
-
-            var sO = d3.select('#chart_options').append('select');
-              sO.append('option').text('Operation');
-              sO.append('option').text("Sum");
-              sO.append('option').text("Average");
-              sO.append('option').text("Max");
-              sO.append('option').text("Min");
-
-
-            sX.on('change',function(){
-              xAxisVar = this.options[this.selectedIndex].value;
-              changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
-            });
-              
-            
-            sY.on('change',function(){
-              yAxisVar = this.options[this.selectedIndex].value;
-              changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
-            });
-              
-            sO.on('change',function(){
-              operation = this.options[this.selectedIndex].value;
-              changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+            d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
+                yAxisVar = this.value;
+                pieYVar = yAxisVar;
+                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
             });
 
-            sTitle.on('click', function(){
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                if(document.getElementById('yOption'+i).value == pieYVar){
+                    d3.select('#yOption'+i).property('checked', true);
+                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                }
+            }
+
+
+            d3.select('#chart_operations_list')
+                    .append('h6')
+                    .style('margin-top', '30px')
+                    .text('Operation');
+
+            var opArray = ['Sum', 'Average', 'Max', 'Min'];
+
+            for(var i=0; i<4; i++){
+                d3.select('#chart_operations_list').append('input')
+                    .attr('type','radio')
+                    .attr('name', 'checkbox_operations')
+                    .attr('class', 'checkbox_operations')
+                    .attr('id', 'pieOpOption'+i)
+                    .property('value',opArray[i]);
+                d3.select('#chart_operations_list')
+                        .append('label')
+                            .text(opArray[i])
+                            .attr('class', 'checkbox_operations_label')
+                            .style('display', 'inline');
+                 d3.select('#chart_operations_list').append('br'); 
+            }
+
+
+            d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
+                operation = this.value;
+                pieOp=operation;
+                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+            });
+
+            for(var i=0; i<4; i++ ){
+                if(document.getElementById('pieOpOption'+i).value == pieOp){
+                    d3.select('#pieOpOption'+i).property('checked', true);
+                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                }
+            }
+
+
+            sLabel.on('click', function(){
                 chartTitle = document.getElementById("chartTitle").value;
-                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);  
+                xAxisLabel = document.getElementById("xAxisLabel").value;
+                yAxisLabel = document.getElementById("yAxisLabel").value;
+                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
             });
+
 
         });
 
 
         function changePie(data, xAxisVar, yAxisVar, operation, chartTitle){
             d3.selectAll("svg > *").remove();
+
+            svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' }); 
 
             var map; 
             if(operation == "Average") {
@@ -833,7 +1165,7 @@
 
                 d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", -20)
+                .attr("y", 0)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -864,27 +1196,23 @@
         document.getElementById('histBins').style.display = "none";
         document.getElementById('change_bins_button').style.display = "none";
 
-        document.getElementById('numberY').style.display = "block";
-        document.getElementById('change_yaxis_vars').style.display = "block";
-
-
         document.getElementById('bar_option').style.backgroundColor= "#eaeaea";
         document.getElementById('histogram_option').style.backgroundColor= "#eaeaea";
         document.getElementById('pie_option').style.backgroundColor= "#eaeaea";
         document.getElementById('line_option').style.backgroundColor= "#cccccc";
 
-        document.getElementById('xAxisLabel').style.display = "block";
-        document.getElementById('yAxisLabel').style.display = "block";
-        document.getElementById('change_label_button').style.display = "block";
-
         d3.selectAll("svg").remove();
         d3.selectAll("select").remove();
         d3.selectAll("br").remove();
+        d3.selectAll("input[type='radio']").remove();
+        d3.selectAll("input[type='checkbox']").remove();
+        d3.selectAll("h6").remove();
+        d3.selectAll("label").remove();
         graphType = x;
         
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
-            height = 500;
+            height = 550;
 
         var svg = d3.select("#svgcontainer")
             .append("svg:svg")
@@ -892,6 +1220,15 @@
             .attr("height", "100%")
             .attr("viewBox", "0 0 " + width + " " + height);
 
+        svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' }); 
 
         var yScale = d3.scaleLinear()
             .range([height - margin.top - margin.bottom, 0]);
@@ -903,13 +1240,9 @@
         var yAxis = d3.axisLeft(yScale);
   
 
-        var xAxisVar = "";
-        var yAxisVar = [];
-        var operation = "";
-        var xAxisLabel = "";
-        var yAxisLabel = "";
-        var chartTitle = "";
-        var numberOfY = 0;
+        var xAxisVar = lineXVar;
+        var yAxisVar = lineYVar.slice();
+        var operation = lineOp;
 
 
 
@@ -917,100 +1250,142 @@
 
               var dataValues = d3.values(data)[0];
 
-              var sTitle = d3.select('#chartTitleButton');
-
-              d3.select('#chart_options').append('br');
 
               var sLabel = d3.select('#change_label_button')
                         .text("Change Label");
 
                 
-                d3.select('#chart_options').append('br');
+                d3.select('#chart_variables_list').append('br');
 
-              var sX = d3.select('#chart_options').append('select');
-              sX.append('option').text('X Axis Var');
+               d3.select('#chart_variables_list_x')
+                    .append('h6')
+                    .text('Categorical');
+
+                d3.select('#chart_variables_list_y')
+                    .append('h6')
+                    .text('Value');
+
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
-                sX.append('option').text(Object.keys(dataValues)[i]);
+                 d3.select('#chart_variables_list_x')
+                    .append('input')
+                        .attr('type','radio')
+                        .attr('name', 'checkbox_options_x')
+                        .attr("id",'xOption'+i)
+                        .attr('class', 'checkbox_options_x')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_x')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_x')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_x')
+                    .append('br');
+
               }
 
-              d3.select('#chart_options').append('br');
-
-
-
-
-            var sNY = d3.select('#change_yaxis_vars');
-
-            var sY=[];
-
-            var chartOptionDiv = document.getElementById("chart_options");
-
-            sNY.on('click', function(){
-                var numY = document.getElementById("numberY").value;
-                for(var ii=0; ii<+numY; ii++){
-
-
-                    sY[ii] = chartOptionDiv.appendChild(document.createElement('select'));
-
-                    var option = document.createElement("option");
-                    option.text = "Y Axis Var";
-
-                    sY[ii].add(option);
-                    for(var i=0; i<Object.keys(dataValues).length; i++ ){
-                         var option = document.createElement("option");
-                        option.text = Object.keys(dataValues)[i];
-                        sY[ii].add(option);
-                    }
-
-                    var prev = "";
-
-                    sY[ii].onclick = function(){
-                        prev = this.value;
-                    }
-
-                    sY[ii].onchange = function(){
-                    if(prev != "Y Axis Var"){
-                        yAxisVar[yAxisVar.indexOf(prev)] = this.options[this.selectedIndex].value;
-                    }else{
-                        yAxisVar.push(this.options[this.selectedIndex].value);
-                        numberOfY++;
-                    }
-                        changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
-                    }
-
-                    d3.select('#chart_options').append('br');
-                }
-            });
-
-                      
-              var sO = d3.select('#chart_options').append('select');
-              sO.append('option').text('Operation');
-              sO.append('option').text("Sum");
-              sO.append('option').text("Average");
-              sO.append('option').text("Max");
-              sO.append('option').text("Min");
-
-
-  
-            sX.on('change',function(){
-              xAxisVar = this.options[this.selectedIndex].value;
-              changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
-            });
-              
-
-            sO.on('change',function(){
-              operation = this.options[this.selectedIndex].value;
-              changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
-            });
-
-            sLabel.on('click', function(){
-                xAxisLabel = document.getElementById("xAxisLabel").value;
-                yAxisLabel = document.getElementById("yAxisLabel").value;
+            d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
+                xAxisVar = this.value;
+                lineXVar = xAxisVar;
                 changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
 
-            sTitle.on('click', function(){
+
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                if(document.getElementById('xOption'+i).value == lineXVar){
+                    d3.select('#xOption'+i).property('checked', true);
+                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
+            }
+
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                 d3.select('#chart_variables_list_y')
+                    .append('input')
+                        .attr('type','checkbox')
+                        .attr('name', 'checkbox_options_y')
+                        .attr("id",'yOption'+i)
+                        .attr('class', 'checkbox_options_y')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_y')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_y')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_y')
+                    .append('br');
+
+              }
+
+            d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
+                if(this.checked){
+                    yAxisVar.push(this.value);
+                    lineYVar.push(this.value);
+                }else{
+                    var index = yAxisVar.indexOf(this.value);
+                    if (index !== -1){
+                        yAxisVar.splice(index, 1);
+                    }
+                    var index2 = lineYVar.indexOf(this.value);
+                    if (index2 !== -1){
+                        lineYVar.splice(index, 1);
+                    }
+                }
+                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+            });
+                      
+             d3.select('#chart_operations_list')
+                    .append('h6')
+                    .style('margin-top', '30px')
+                    .text('Operation');
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                for(var ii=0; ii<lineYVar.length; ii++){
+                   if(document.getElementById('yOption'+i).value == lineYVar[ii]){
+                        d3.select('#yOption'+i).property('checked', true);
+                        changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    }
+                }
+            }
+
+            var opArray = ['Sum', 'Average', 'Max', 'Min'];
+
+            for(var i=0; i<4; i++){
+                d3.select('#chart_operations_list').append('input')
+                    .attr('type','radio')
+                    .attr('name', 'checkbox_operations')
+                    .attr('class', 'checkbox_operations')
+                    .attr('id','lineOpOption'+i)
+                    .property('value',opArray[i]);
+                d3.select('#chart_operations_list')
+                        .append('label')
+                            .text(opArray[i])
+                            .attr('class', 'checkbox_operations_label')
+                            .style('display', 'inline');
+                 d3.select('#chart_operations_list').append('br'); 
+            }
+
+
+            d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
+                operation = this.value;
+                lineOp = operation;
+                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+            });
+
+            for(var i=0; i<4; i++ ){
+                if(document.getElementById('lineOpOption'+i).value == lineOp){
+                    d3.select('#lineOpOption'+i).property('checked', true);
+                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
+            }
+
+            sLabel.on('click', function(){
                 chartTitle = document.getElementById("chartTitle").value;
-                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);  
+                xAxisLabel = document.getElementById("xAxisLabel").value;
+                yAxisLabel = document.getElementById("yAxisLabel").value;
+                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
 
         });
@@ -1018,6 +1393,15 @@
         function changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle){
           d3.selectAll("svg > *").remove();
 
+          svg.append('text')
+            .attr('id','menu_icon')
+            .attr('font-family', 'FontAwesome')
+            .attr('data-toggle', "modal")
+            .attr('data-target', "#myModal1")
+            .attr("x", width - 40)
+            .attr("y", -15)
+            .attr('font-size', function(d) { return 28+'px'} )
+            .text(function(d) { return '\uf0c9' }); 
 
             var dataNew;
 
@@ -1091,7 +1475,7 @@
 
             d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", -20)
+                .attr("y", 0)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -1230,14 +1614,14 @@
         var gg = d3.select(this);
         gg.append("rect")
           .attr("x", width - 150)
-          .attr("y", -50 + i*25)
+          .attr("y", i*25)
           .attr("width", 10)
           .attr("height", 10)
           .style("fill", colorScale(i));
 
         gg.append("text")
           .attr("x", width - 135)
-          .attr("y", -50 + i * 25 + 8)
+          .attr("y", i * 25 + 8)
           .attr("height",30)
           .attr("width",100)
           .text(yAxisVar[i]);
