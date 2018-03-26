@@ -8,8 +8,8 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="{% static "style.css"%}">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="{% static "style.css" %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <link rel="icon" type="image/jpeg" href='{% static "Icon/logo.png" %}'>
@@ -86,14 +86,14 @@
             <div id="sec2-sql" class="col-md-5 col-sm-5">
                 <div class="main">
                     <div class="coding">
-                        <i id="close" class="fa fa-close" alt="close" title="close"></i>
-                        <div class="container">
-                                <label for="area" style="margin-top: 5px;">Coding Ground:</label>
-                                <div class="form-group">
-                                        <textarea class="form-control z-depth-1" id="area" placeholder="Enter your queries here."name="query" form="queryform">
-                                        </textarea>
-                                </div>
-                        </div>
+                      <i id="close-sql" class="fa fa-caret-left" alt="close" title="Shrink"></i>
+                      <div class="container">
+                              <label for="area" style="margin-top: 5px;">Coding Ground:</label>
+                              <div class="form-group">
+                                  <textarea class="form-control z-depth-1" id="area" name="query" form="queryform">
+                                  </textarea>
+                              </div>
+                      </div>
                     </div>
                 </div>
             </div>
@@ -119,18 +119,18 @@
                 <div class="main2">
                     <div class="container">
                       {% for result in results %}
-                        <div id="image{{forloop.counter}}" class="image draggable d-none">
+                        <div id="image{{forloop.counter}}" data-id="{{forloop.counter}}" class="image draggable d-none ui-widget-content">
                             <div class="options">
                                     <button id="btn-{{forloop.counter}}" type="button" class="btn btn-primary btn-sm save" >
                                         <i class="fa fa-close" title="Save to Reporting area"></i>
                                     </button>
                             </div>{% load static %}
-                            <div class="plots" id="plotscopy{{forloop.counter}}">
+                            <div class="plots" data-id="{{forloop.counter}}" id="plotscopy{{forloop.counter}}" style="margin-right:5em">
                             </div>
-                            <hr><br>
+                          <br>
                         </div>
                       {% endfor %}
-                      <div class="image d-none draggable" id="multiple_plots_div">
+                      <div class="image d-none draggable ui-widget-content" id="multiple_plots_div">
                         <div class="options" style="margin-bottom:30px">
                                 <button id="btn-multiple-plots" type="button" class="btn btn-primary btn-sm save" >
                                     <i class="fa fa-close" title="Save to Reporting area"></i>
@@ -192,6 +192,7 @@
 
       $(document).ready(function(){
         $( ".draggable" ).draggable();
+        $('.plots').resizable();
         var chart_area_plots = [];
           $('.plot-checkbox').click(function(){
             if($(this).prop('checked')){
@@ -236,8 +237,6 @@
               $(this).attr('disabled', 'true');
               $('#multiple_plots_div').removeClass('d-none');
           });
-
-
           var list = [];
           {% if results %}
           {% for result in results %}
@@ -250,11 +249,12 @@
                   },
               }];
               var layout{{forloop.counter}} = {
-                  title: '{{result.0 }}',
-                  titlefont: {
-                      family: 'Droid Sans Mono',
-                      size: 36,
-                      color: '#000000'
+                autosize: true,
+                title: '{{result.0 }}',
+                titlefont: {
+                    family: 'Droid Sans Mono',
+                    size: 36,
+                    color: '#000000'
                   },
                   margin: {l:200},
               };
@@ -266,10 +266,46 @@
                   $('#image{{forloop.counter}}').removeClass('d-none');
               });
               $('#btn-{{forloop.counter}}').on('click', function () {
+                  console.log("done");
                   $('#image{{forloop.counter}}').addClass('d-none');
                   $('#btn{{forloop.counter}}').removeAttr('disabled');
 
               });
+              $('#plotscopy{{forloop.counter}}').resize(function(){
+                console.log("PASDS");
+                  data{{forloop.counter}} = [{
+                    y: {{ result.2 |safe}},
+                    x: {{ result.1 |safe }},
+                    type: 'scatter',
+                    marker: {
+                        color: '#23b7e5',
+                    },
+                  }];
+                  var layout{{forloop.counter}} = {
+                    autosize: false,
+                    height: $(this).height(),
+                    width: $(this).width(),
+                    title: '{{result.0 }}',
+                    titlefont: {
+                        family: 'Droid Sans Mono',
+                        size: 36,
+                        color: '#000000'
+                      },
+                      margin: {l:200},
+                  };
+                  Plotly.newPlot('plotscopy{{forloop.counter}}', data{{forloop.counter}}, layout{{forloop.counter}});
+                  $(this).parent().width($(this).width()*1.2).height($(this).height()*1.1);
+              });
+
+              // $('#btn{{forloop.counter}}').click(function (e) {
+              //     $(this).attr('disabled', 'true');
+              //     $('#image{{forloop.counter}}').removeClass('d-none');
+              // });
+              // $('#btn-{{forloop.counter}}').on('click', function () {
+              //     $('#image{{forloop.counter}}').addClass('d-none');
+              //     $('#btn{{forloop.counter}}').removeAttr('disabled');
+              //
+              // });
             {% endfor %}
             {% endif %}
           });
