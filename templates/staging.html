@@ -9,17 +9,126 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="{% static "style.css"%}">
+    <link rel="stylesheet" href='{% static "style.css"%}'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <link rel="icon" type="image/jpeg" href='{% static "Icon/logo.png" %}'>
 
     <title>Dashboarding Product | DizzData</title>
+
+    <style type="text/css">
+        .chart_type{
+            width: 100%;
+            padding-top: 10px;
+            height: 50px;
+            margin-top: 30px;
+        }
+        .chart_option{
+            display: inline;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 2px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        #chart_variables_list{
+            margin-top: 20px;
+        }
+        .file_list_item{
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            font-weight: 400;
+            color: #212529;
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+        }
+        .file_list_item:hover{
+            color: #5555ee;
+        }
+        .modal_menu_options{
+            width: 250px;
+            margin-top: 45vh;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .modal_label_inputs{
+            width: 250px;
+            margin-top: 45vh;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .label_input{
+            border-collapse: collapse;
+            margin-bottom: 5px;
+            border-radius: 2px;
+            border: 0.5px solid #cccccc;
+            padding-left: 3px;
+        }
+        .main2 {
+            margin: 0;
+            background: white;
+            height: 100%;
+        }
+        #chart_variables_list_x{
+            width: 49%;
+            float: left;
+        }
+        #chart_variables_list_y{
+            width: 49%;
+            float: right;
+        }
+        #chart_operations_list{
+            width: 100%;
+            float: left;
+        }
+        .checkbox_options_x{
+            height: 18px;
+          width: 18px;
+          background-color: #eee;
+        }
+        .checkbox_options_y{
+            height: 18px;
+          width: 18px;
+          background-color: #eee;
+        }
+        .checkbox_options_label_x{
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        .checkbox_options_label_y{
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        .checkbox_operations{
+            height: 18px;
+          width: 18px;
+          background-color: #eee;
+        }
+        .checkbox_operations_label{
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        input[type="radio"] {
+          margin-top: -5px;
+          vertical-align: middle;
+        }
+        #histBins{
+            margin-top: 10px;
+            float: left;
+        }
+        #change_bins_button{
+            float: left;
+        }
+    </style>
   </head>
   <body>
-
+     <form method="post" id="queryform" enctype="multipart/form-data">{% csrf_token %}</form>
     <section class="sec point" id="sec1">
         <div class="row">
+            {% if connected == True %}
             <div class="col-md-4 col-sm-4">
                 <div class="dropdown">
                     <div class="point-center">
@@ -27,26 +136,20 @@
                             Games
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Link 1</a>
-                            <a class="dropdown-item" href="#">Link 2</a>
-                            <a class="dropdown-item" href="#">Link 3</a>
+                            <a class="dropdown-item" href="#">No Game :(</a>
                         </div>{% endcomment %}
-                        {% if connected == True %}
+                         
                         <a href={% url 'logout' %}>
                             <input type="button" value="logout" />
                         </a>
-                        {% endif %}
+                        
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="point-center">
-                    <button type="submit" class="btn refresh" title="Refresh">
-                        Run Query
-                        <i id="refresh" class="fa fa-refresh"></i>
-                    </button>
-                </div>
-            </div>
+            {% endif %}
+
+
+
         {% if connected == True %}
                  <div class="col-md-4 col-sm-4">
                 <div class="point-center">
@@ -56,14 +159,15 @@
                 </div>
             </div>
             {% endif %}
-            <div class="col-md-4 col-sm-4">
+            
+            <div class="col-md-4 col-sm-4 right">
                     <div class="dropdown">
                         <div class="point-center">
                             <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
                                 Connect to Database
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#">BigQuery</a>
+                                <a class="dropdown-item" href="{% url 'signin' %}">BigQuery</a>
                                 <a class="dropdown-item" href="{% url 'uploadcsv' %}">Upload CSV</a>
                             </div>
                         </div>
@@ -73,94 +177,852 @@
     </section>
 
     <section class="sec" id="sec2">
+
+    </div>
+
+
         <div class="row">
             <div id="sec1-sql" class="col-md-2 col-sm-2">
                 <div class="aside">
                     <ul class="list-group">
-                        <a href=""><li class="list-group-item active">DAU </li></a>
-                        <a href=""><li class="list-group-item">Retention(D1, D7, D14)</li></a>
-                        <a href=""><li class="list-group-item">Revenue (By country, OS, etc.)</li></a>
-                        <a href=""><li class="list-group-item">Staging Area</li></a>
+                        <a class="list-group-item" href="{% url 'root' %}">Coding Area </a>
+                        <a class="list-group-item" href="{% url 'charting' %}">Charting Area</a>
+                        <a href="{% url 'staging' %}" class="list-group-item active">Reporting Area</a>
                     </ul>
                 </div>
             </div>
-            <div id="sec2-sql" class="col-md-5 col-sm-5">
-                <div class="main">
-                    <div class="coding">
-                        <i id="close-sql" class="fa fa-arrow-left" alt="close" title="Shrink"></i>
-                        <div class="container">
-                                <label for="area" style="margin-top: 5px;">Coding Ground:</label>
-                                <div class="form-group">
-                                        <textarea class="form-control z-depth-1" id="area" placeholder="Enter your queries here.">
+            <div id="sec3-sql" class="col-md-8 col-sm-8">
+                {% if savedGraphs %}
+                  {% for graph in savedGraphs %}
+                    <div class="main2 svgcontainer" style="margin-top: 50px; height: 800px; ">
+                        <form action="{% url 'deleteChartingGraph' %}"  
+                            name="deleteChartingGraph" id="deleteChartingGraph" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="savedChartIndex" class="savedChartIndex" />
+                            <input type="submit" class="btn btn-danger" value="Delete"  />
+                        </form>
+                        <input type="hidden" class="graphDataset" value="{{ graph.graphDataset }}" />
+                        <input type="hidden" class="graphType" value="{{ graph.graphType }}" />
 
-                                        </textarea>
-                                </div>
-                        </div>
+                        <input type="hidden" class="graphTitle" value="{{ graph.graphTitle }}" />
+                        <input type="hidden" class="graphXAxisLabel" value="{{ graph.graphXAxisLabel }}" />
+                        <input type="hidden" class="graphYAxisLabel" value="{{ graph.graphYAxisLabel }}" />
+
+                        <input type="hidden" class="graphXAxisVar" value="{{ graph.graphXAxisVar }}" />
+                        <input type="hidden" class="graphYAxisVar" value="{{ graph.graphYAxisVar }}" />
+                        <input type="hidden" class="graphOp" value="{{ graph.graphOp }}" />
+                        <input type="hidden" class="graphHist" value="{{ graph.graphHist }}" />
                     </div>
-                </div>
-            </div>
-            <div id="sec3-sql" class="col-md-5 col-sm-5">
-                <div class="main1">
-                    <div class="container">
-                            <div class="image">
-                                    <i id="close" class="fa fa-close" alt="close" title="close"></i>
-                                    <img class="image-in-images" src='{% static "Images/img1.png"  %}' class="mx-auto">
-                            </div><hr><br>
-                        <div class="image">
-                                <i id="close" class="fa fa-close" alt="close" title="close"></i>
-                                <img class="image-in-images" src='{% static "Images/img2.png"  %}' class="mx-auto">
-                        </div><hr><br>
-                        <div class="image">
-                                <i id="close" class="fa fa-close" alt="close" title="close"></i>
-                                <img class="image-in-images" src='{% static "Images/img3.png"  %}' class="mx-auto">
-                        </div>
-                    </div>
-                </div>
-            </div>
+                  {% endfor %}
+                {% endif %}
+            </div>  
 
 
-
-        <!--    <div id="sec3-sql" class="col-md-5 col-sm-5">
-                <div class="main1">
-                    <div class="container">
-                        <div class="image">
-                            <i id="close" class="fa fa-close" alt="close" title="close"></i>
-                            <img class="image-in-images" src="Images/Charts_image_series.png" class="mx-auto">
-                        </div><hr><br>
-                        <div class="image">
-                                <i id="close" class="fa fa-close" alt="close" title="close"></i>
-                                <img class="image-in-images" src="Images/Charts_series_regions.png" class="mx-auto">
-                        </div><hr><br>
-                        <div class="image">
-                                <i id="close" class="fa fa-close" alt="close" title="close"></i>
-                                <img class="image-in-images" src="Images/1490861424_783_the-worst-or-the-best-smashing-magazine.png" class="mx-auto">
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-
-        </div>
-    </section>
-
-    <section class="sec" id="sec3">
-        <div class="row">
-            <div class="col-md-9 col-sm-9">
-                <div class="buttons">
-                        <button type="button" class="btn btn-danger">Show Email Aerts</button>
-                    </div>
-            </div>
-            <div class="col-md-3 col-sm-3">
-                <div class="buttons">
-                    <button type="button" class="btn btn-danger">Show Anamalies</button>
-                </div>
-            </div>
         </div>
     </section>
 
     <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS --> 
+    <link rel="stylesheet" type="text/css" href='{% static "jquery-ui-1.12.1.min.css"%}'/>
+    <script src='{% static "jquery-3.2.1.min.js" %}'></script>
+    <script src='{% static "jquery-ui-1.12.1.min.js" %}'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
-</html>
+
+    <script src='{% static "script.js" %}'></script>
+
+    
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            $(function () {
+                $('.svgcontainer').draggable().resizable({handles: 'n, e, s, w, ne, se, sw, nw'});
+            });
+            var allGraphs = document.getElementsByClassName('svgcontainer');
+            for(var jj=0; jj<allGraphs.length; jj++){
+                var graphDataset = allGraphs[jj].getElementsByClassName('graphDataset')[0].value;
+                var graphType = allGraphs[jj].getElementsByClassName('graphType')[0].value;
+
+                var graphTitle = allGraphs[jj].getElementsByClassName('graphTitle')[0].value;
+                var graphXAxisLabel = allGraphs[jj].getElementsByClassName('graphXAxisLabel')[0].value;
+                var graphYAxisLabel = allGraphs[jj].getElementsByClassName('graphYAxisLabel')[0].value;
+
+                var graphXAxisVar = allGraphs[jj].getElementsByClassName('graphXAxisVar')[0].value;
+                var graphYAxisVar = allGraphs[jj].getElementsByClassName('graphYAxisVar')[0].value;
+                var graphOp = allGraphs[jj].getElementsByClassName('graphOp')[0].value;
+                var graphHist = allGraphs[jj].getElementsByClassName('graphHist')[0].value;
+
+
+                if(graphType == "bar"){
+                    drawGraph(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset)
+                    
+                }else if(graphType == "histogram"){
+                    drawHisto(graphXAxisVar, graphHist, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset);
+                    
+                }else if(graphType == "pie"){
+                    drawPie(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset);
+                }else if(graphType == "line"){
+                    drawLines(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset);
+                }
+            }
+
+    });
+
+    function drawGraph(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset){
+
+        var margin = {top:0, right:0, bottom:20, left:50},
+                    width  = 900,
+                    height = 550;
+
+                    var tempSVG;
+
+                    d3.selectAll(".svgcontainer").each(function(d, i){
+                        if(i==jj){
+                            tempSVG = d3.select(this);
+                        }
+                    });
+
+                
+                    var svg = tempSVG.append("svg:svg")
+                    .attr("width", "100%")
+                    .attr("height", "100%")
+                    .attr("viewBox", "0 0 " + width + " " + height);
+
+                    d3.selectAll(".savedChartIndex").each(function(d, i){
+                        if(i==jj){
+                            d3.select(this).property("value",jj);
+                        }
+                    });
+
+                var yScale = d3.scaleLinear()
+                    .range([height - margin.top - margin.bottom, 0]);
+
+                var xScale = d3.scaleBand()
+                    .rangeRound([0, width - margin.right - margin.left])
+                    .paddingInner(0.5);
+
+                var xAxis = d3.axisBottom(xScale);
+                var yAxis = d3.axisLeft(yScale);
+
+                var xAxisVar = graphXAxisVar;
+                var yAxisVar = graphYAxisVar;
+                var operation = graphOp;
+
+                var chartTitle = graphTitle;
+                var xAxisLabel = graphXAxisLabel;
+                var yAxisLabel = graphYAxisLabel;
+                
+                d3.csv(graphDataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
+
+                    var dataValues = d3.values(data)[0];
+
+                    var dataNew;
+                    if(operation == "Average") {
+                      dataNew=d3.nest()
+                        .key(function(d) {return d[xAxisVar];})
+                        .rollup(function(d) {
+                        return d3.mean(d,function(g) {return +g[yAxisVar];});
+                        })
+                        .entries(data);
+                    }else if(operation == "Sum") {
+                      dataNew=d3.nest()
+                        .key(function(d) {return d[xAxisVar];})
+                        .rollup(function(d) {
+                        return d3.sum(d,function(g) {return +g[yAxisVar];});
+                        })
+                        .entries(data);
+                    }else if(operation == "Max") {
+                      dataNew=d3.nest()
+                        .key(function(d) {return d[xAxisVar];})
+                        .rollup(function(d) {
+                        return d3.max(d,function(g) {return +g[yAxisVar];});
+                        })
+                        .entries(data);
+                    }else if(operation == "Min") {
+                      dataNew=d3.nest()
+                        .key(function(d) {return d[xAxisVar];})
+                        .rollup(function(d) {
+                        return d3.min(d,function(g) {return +g[yAxisVar];});
+                        })
+                        .entries(data);
+                    }
+
+                    dataNew.sort(function(x, y){
+                      return d3.ascending(+x["key"], +y["key"]);
+                    })
+
+                    yScale.domain([0, d3.max(dataNew, function(d){ return d["value"]; })]).nice();
+
+                    xScale.domain(dataNew.map(function(d){ return d["key"]; }));
+
+                    var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+                    colorScale.domain(data.map(function (d){ return d["key"]; }));
+
+                    svg.append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .selectAll(".bar")
+                    .data(dataNew)
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", function(d){ return xScale(d["key"]); })
+                    .attr("y", function(d){ return yScale(d["value"]); })
+                    .attr("fill", function (d){ return colorScale(d["key"]); })
+                //    .attr("fill", "red")
+                    .attr("height", function(d){ return height - margin.top - margin.bottom - yScale(d["value"]); })
+                    .attr("width", xScale.bandwidth())
+                    .on("mouseout", function() { tooltip.style("display", "none"); })
+                    .on("mousemove", function(d) {
+                      var xPosition = d3.mouse(this)[0];
+                      var yPosition = d3.mouse(this)[1] - 25;
+                      tooltip.style("display", "block");
+                      tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                      tooltip.select("text").text(+d["value"].toFixed(3));
+                    });
+
+
+                    svg.append("g")
+                    .attr("class", "y axis")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .call(yAxis);
+
+                    svg.append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0)
+                        .attr("x", 0 - (height / 2))
+                        .attr("dy", "1em")
+                        .style("text-anchor", "middle")
+                        .text(yAxisLabel);
+
+                //adding x axis to the bottom of chart
+                    svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                        .call(xAxis);
+
+                    svg.append("text")             
+                      .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
+                      .style("text-anchor", "middle")
+                      .text(xAxisLabel);
+
+                    svg.append("text")
+                        .attr("x", (width / 2))             
+                        .attr("y", 0)
+                        .attr("text-anchor", "middle")  
+                        .style("font-size", "16px") 
+                        .style("text-decoration", "underline")  
+                        .style("font-size", "24px")
+                        .style("font-weight", "bold")
+                        .text(chartTitle);
+
+                    var tooltip = svg.append("g")
+                    .style("display", "none");
+                      
+                    tooltip.append("rect")
+                    .attr("width", 60)
+                    .attr("height", 20)
+                    .attr("fill", "white")
+                    .style("opacity", 0.5);
+
+                    tooltip.append("text")
+                    .attr("x", 30)
+                    .attr("dy", "1.2em")
+                    .style("text-anchor", "middle")
+                    .attr("font-size", "12px")
+                    .attr("font-weight", "bold");
+
+
+
+                });
+
+    }
+
+
+    function drawHisto(graphXAxisVar, graphHist, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset){
+        var margin = {top:0, right:0, bottom:20, left:50},
+        width  = 900,
+        height = 550;
+
+        var tempSVG;
+
+        d3.selectAll(".svgcontainer").each(function(d, i){
+            if(i==jj){
+                tempSVG = d3.select(this);
+            }
+        });
+
+    
+        var svg = tempSVG.append("svg:svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 " + width + " " + height);
+
+        d3.selectAll(".savedChartIndex").each(function(d, i){
+            if(i==jj){
+                d3.select(this).property("value",jj);
+            }
+        });
+
+    var yScale = d3.scaleLinear()
+        .range([height - margin.top - margin.bottom, 0]);
+
+    var xScale = d3.scaleLinear()
+        .rangeRound([0, width - margin.right - margin.left]);
+
+    var xAxisVar = graphXAxisVar;
+    var binCount = graphHist;
+
+    var chartTitle = graphTitle;
+    var xAxisLabel = graphXAxisLabel;
+    var yAxisLabel = graphYAxisLabel;
+    
+    d3.csv(graphDataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
+
+        var dataNew;
+        var map = data.map(function(d){ return +d[xAxisVar]});
+
+        if(binCount == ""){
+            binCount = map.length;
+        }
+
+        var histogram = d3.histogram().thresholds(+binCount);
+
+        var bins = histogram(map);
+
+
+        var maxY = d3.max(bins, function(d) { return d.length; });
+
+        xScale.domain([d3.min(bins, function(d) { return d.x0; }), d3.max(bins, function(d) { return d.x1; })]).nice();
+
+        yScale.domain([0, maxY]).nice();
+
+
+        tempMax = 0;
+
+        if(yScale(maxY) != 0 ){
+            tempMax = yScale(maxY);
+        }
+
+        var bar = svg.selectAll(".bar")
+            .data(bins)
+            .enter().append("g")
+              .attr("class", "bar")
+              .attr("transform", function(d) { return "translate(" + margin.left + "," + margin.bottom + ")"; });
+
+          bar.append("rect")
+          .attr("x", function(d){ return xScale(d.x0);})
+          .attr("y", function(d){return height - yScale(maxY - d.length) - margin.bottom + tempMax;})
+          .attr("width", function(d) { return xScale(d.x1) - xScale(d.x0); })
+          .attr("height", function(d) {return yScale(maxY - d.length) - tempMax; })
+          .attr("fill", "steelblue")
+          .on("mouseenter", function(d) {
+                  var xPosition = d3.mouse(this)[0];
+                  var yPosition = d3.mouse(this)[1] - 10;
+                  tooltip.style("display", "block");
+                  tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                  tooltip.select("text").text(d.length);
+                })
+          .on("mouseout", function() { tooltip.style("display", "none"); })
+                .on("mousemove", function(d) {
+                  var xPosition = d3.mouse(this)[0];
+                  var yPosition = d3.mouse(this)[1] - 10;
+                  tooltip.style("display", "block");
+                  tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                  tooltip.select("text").text(d.length);
+                });
+
+            var xAxis = d3.axisBottom(xScale);
+            var yAxis = d3.axisLeft(yScale);
+
+
+      svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(" + margin.left + "," + height + ")")
+        .call(xAxis);
+
+
+        svg.append("text")             
+      .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 30) + ")")
+      .style("text-anchor", "middle")
+      .text(xAxisLabel);
+      
+
+      svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + margin.left + "," + (margin.top + margin.bottom) + ")")
+          .call(yAxis);
+
+        svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(yAxisLabel);
+
+       svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .style("font-size", "24px")
+        .style("font-weight", "bold")
+        .text(chartTitle);
+
+
+        var tooltip = svg.append("g")
+            .style("display", "none");
+      
+        tooltip.append("rect")
+        .attr("width", 60)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .style("opacity", 0.5);
+
+        tooltip.append("text")
+        .attr("x", 30)
+        .attr("dy", "1.2em")
+        .style("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold");
+
+
+
+        });
+    }
+
+
+    function drawPie(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset){
+        var margin = {top:0, right:0, bottom:20, left:50},
+            width  = 900,
+            height = 550,
+            radius = Math.min(width, height) / 2;
+
+        var tempSVG;
+
+        d3.selectAll(".svgcontainer").each(function(d, i){
+            if(i==jj){
+                tempSVG = d3.select(this);
+            }
+        });
+
+    
+        var svg = tempSVG.append("svg:svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 " + width + " " + height);
+
+        d3.selectAll(".savedChartIndex").each(function(d, i){
+            if(i==jj){
+                d3.select(this).property("value",jj);
+            }
+        });
+
+    var yScale = d3.scaleLinear()
+        .range([height - margin.top - margin.bottom, 0]);
+
+    var xScale = d3.scaleLinear()
+        .rangeRound([0, width - margin.right - margin.left]);
+
+    var xAxisVar = graphXAxisVar;
+    var yAxisVar = graphYAxisVar;
+    var operation = graphOp;
+
+    var chartTitle = graphTitle;
+    var xAxisLabel = graphXAxisLabel;
+    var yAxisLabel = graphYAxisLabel;
+    
+    d3.csv(graphDataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
+
+        var dataNew;
+        var map; 
+            if(operation == "Average") {
+              map=d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+                return d3.mean(d,function(g) {return +g[yAxisVar];});
+                })
+                .entries(data);
+            }else if(operation == "Sum") {
+              map=d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+                return d3.sum(d,function(g) {return +g[yAxisVar];});
+                })
+                .entries(data);
+            }else if(operation == "Max") {
+              map=d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+                return d3.max(d,function(g) {return +g[yAxisVar];});
+                })
+                .entries(data);
+            }else if(operation == "Min") {
+              map=d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+                return d3.min(d,function(g) {return +g[yAxisVar];});
+                })
+                .entries(data);
+            }
+
+            map.sort(function(x, y){
+              return d3.ascending(+x["key"], +y["key"]);
+            })
+
+            var arc = d3.arc()
+                .outerRadius(radius - 10)
+                .innerRadius(0);
+
+            var labelArc = d3.arc()
+                .outerRadius(radius - 40)
+                .innerRadius(radius - 40);
+
+            var pie = d3.pie()
+                .sort(null)
+                .value(function(d) { return d.value; });
+
+            var newData = pie(map);
+
+            var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+            colorScale.domain(newData.map(function (d){ return d.data.key; }));
+
+            var g = svg.selectAll(".arc")
+                .data(newData)
+                .enter().append("g")
+                .attr("class", "arc")
+                .attr("transform", function(d) { return "translate(" + width/2 + "," + height/2 + ")"; });
+
+            g.append("path")
+                .attr("d", arc)
+                .style("fill", function(d) { return colorScale(d.data.key); })
+                .on("mouseenter", function(d) {
+                  var xPosition = d3.mouse(this)[0] + width/2 - 25;
+                  var yPosition = d3.mouse(this)[1] + height/2 - 25;
+                  tooltip.style("display", "block");
+                  tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                  tooltip.select("text").text(d.data.value);
+                })
+                .on("mouseout", function() { tooltip.style("display", "none"); })
+                .on("mousemove", function(d) {
+                  var xPosition = d3.mouse(this)[0] + width/2 -25;
+                  var yPosition = d3.mouse(this)[1] + height/2 - 25;
+                  tooltip.style("display", "block");
+                  tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                  tooltip.select("text").text(d.data.key + " : " + +d.data.value.toFixed(3));
+                });
+
+
+            g.append("text")
+                .attr("transform", function(d) {return "translate(" + (labelArc.centroid(d)[0] - 10) + "," + labelArc.centroid(d)[1] + ")"; })
+                .text(function(d) { return (((d.endAngle - d.startAngle)/(2*Math.PI)*100).toFixed(1) + "%" );})
+                .style("fill", "#eee")
+                .style("font-size", "10px");
+
+                svg.append("text")
+                .attr("x", (width / 2))             
+                .attr("y", 0)
+                .attr("text-anchor", "middle")  
+                .style("font-size", "16px") 
+                .style("text-decoration", "underline")  
+                .style("font-size", "24px")
+                .style("font-weight", "bold")
+                .text(chartTitle);
+
+
+                var tooltip = svg.append("g")
+            .style("display", "none");
+              
+            tooltip.append("rect")
+            .attr("width", 60)
+            .attr("height", 20)
+            .attr("fill", "white")
+            .style("opacity", 0.5);
+
+            tooltip.append("text")
+            .attr("x", 30)
+            .attr("dy", "1.2em")
+            .style("text-anchor", "middle")
+            .attr("font-size", "12px")
+            .attr("font-weight", "bold");
+
+        });
+    }
+
+
+    function drawLines(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset){
+        var margin = {top:0, right:0, bottom:20, left:50},
+                    width  = 900,
+                    height = 550;
+
+        var tempSVG;
+
+        d3.selectAll(".svgcontainer").each(function(d, i){
+            if(i==jj){
+                tempSVG = d3.select(this);
+            }
+        });
+
+    
+        var svg = tempSVG.append("svg:svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 " + width + " " + height);
+
+        d3.selectAll(".savedChartIndex").each(function(d, i){
+            if(i==jj){
+                d3.select(this).property("value",jj);
+            }
+        });
+
+        var yScale = d3.scaleLinear()
+            .range([height - margin.top - margin.bottom, 0]);
+
+        var xScale = d3.scaleBand()
+            .rangeRound([0, width - margin.right - margin.left]);
+
+        var xAxis = d3.axisBottom(xScale);
+        var yAxis = d3.axisLeft(yScale);
+
+        var xAxisVar = graphXAxisVar;
+        var yAxisVar = graphYAxisVar.split(",");
+        var operation = graphOp;
+
+        var chartTitle = graphTitle;
+        var xAxisLabel = graphXAxisLabel;
+        var yAxisLabel = graphYAxisLabel;
+        
+        d3.csv(graphDataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
+
+            var dataValues = d3.values(data)[0];
+
+            var dataNew;
+
+            if(yAxisVar[0]){
+                if(operation == "Average") {
+                  dataNew=d3.nest()
+                    .key(function(d) {return d[xAxisVar];})
+                    .rollup(function(d) {
+                    return d3.mean(d,function(g) {return +g[yAxisVar[0]];});
+                    })
+                    .entries(data);
+                }else if(operation == "Sum") {
+                  dataNew=d3.nest()
+                    .key(function(d) {return d[xAxisVar];})
+                    .rollup(function(d) {
+                    return d3.sum(d,function(g) {return +g[yAxisVar[0]];});
+                    })
+                    .entries(data);
+                }else if(operation == "Max") {
+                  dataNew=d3.nest()
+                    .key(function(d) {return d[xAxisVar];})
+                    .rollup(function(d) {
+                    return d3.max(d,function(g) {return +g[yAxisVar[0]];});
+                    })
+                    .entries(data);
+                }else if(operation == "Min") {
+                  dataNew=d3.nest()
+                    .key(function(d) {return d[xAxisVar];})
+                    .rollup(function(d) {
+                    return d3.min(d,function(g) {return +g[yAxisVar[0]];});
+                    })
+                    .entries(data);
+                }
+
+                dataNew.sort(function(x, y){
+                  return d3.ascending(+x["key"], +y["key"]);
+                });
+   
+            var maxYAxisDom = d3.max(dataNew, function(d){ return d["value"]; });
+
+
+            yScale.domain([0, maxYAxisDom]).nice();
+
+            xScale.domain(dataNew.map(function(d){ return d["key"]; }));
+
+            svg.select('.y_axis').remove();
+
+            svg.append("g")
+            .attr("class", "y_axis")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .call(yAxis);
+
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text(yAxisLabel);
+
+        //adding x axis to the bottom of chart
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .call(xAxis);
+
+            svg.append("text")             
+              .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
+              .style("text-anchor", "middle")
+              .text(xAxisLabel);
+
+            svg.append("text")
+                .attr("x", (width / 2))             
+                .attr("y", 0)
+                .attr("text-anchor", "middle")  
+                .style("font-size", "16px") 
+                .style("text-decoration", "underline")  
+                .style("font-size", "24px")
+                .style("font-weight", "bold")
+                .text(chartTitle);
+
+            var tooltip = svg.append("g")
+            .style("display", "none");
+              
+            tooltip.append("rect")
+            .attr("width", 60)
+            .attr("height", 20)
+            .attr("fill", "#aeaeae")
+            .style("opacity", 0.5);
+
+            tooltip.append("text")
+            .attr("x", 30)
+            .attr("dy", "1.2em")
+            .attr("color", "#888")
+            .style("text-anchor", "middle")
+            .attr("font-size", "12px")
+            .attr("font-weight", "bold");
+          
+        }
+
+        var dataArray = [];
+
+
+        for(var ii=0; ii<yAxisVar.length; ii++){
+
+
+            var lineGen = d3.line()
+          .x(function(d) {
+            return xScale(d["key"]) ;
+          })
+          .y(function(d) {
+            return yScale(d["value"]);
+          });
+
+
+            if(operation == "Average") {
+          dataNew=d3.nest()
+            .key(function(d) {return d[xAxisVar];})
+            .rollup(function(d) {
+            return d3.mean(d,function(g) {return +g[yAxisVar[ii]];});
+            })
+            .entries(data);
+        }else if(operation == "Sum") {
+          dataNew=d3.nest()
+            .key(function(d) {return d[xAxisVar];})
+            .rollup(function(d) {
+            return d3.sum(d,function(g) {return +g[yAxisVar[ii]];});
+            })
+            .entries(data);
+        }else if(operation == "Max") {
+          dataNew=d3.nest()
+            .key(function(d) {return d[xAxisVar];})
+            .rollup(function(d) {
+            return d3.max(d,function(g) {return +g[yAxisVar[ii]];});
+            })
+            .entries(data);
+        }else if(operation == "Min") {
+          dataNew=d3.nest()
+            .key(function(d) {return d[xAxisVar];})
+            .rollup(function(d) {
+            return d3.min(d,function(g) {return +g[yAxisVar[ii]];});
+            })
+            .entries(data);
+        }
+
+        dataNew.sort(function(x, y){
+          return d3.ascending(+x["key"], +y["key"]);
+        });
+
+        dataArray.push(dataNew);
+
+        if(d3.max(dataNew, function(d){ return d["value"]; }) > maxYAxisDom){
+
+            maxYAxisDom = d3.max(dataNew, function(d){ return d["value"];});
+            d3.select(".y_axis").remove();
+
+            yScale.domain([0, maxYAxisDom]).nice();
+            svg.append("g")
+        .attr("class", "y_axis")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .call(yAxis);
+
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0)
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text(yAxisLabel);
+        }
+    }
+
+     var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+    colorScale.domain([0, dataArray.length-1]);
+
+    var g = svg.selectAll(".graphLines")
+        .data(dataArray).enter()
+        .append("g")
+        .attr("class", "graphLines");
+
+
+    g.append("path")
+        .attr("transform", "translate(" + margin.left + "," + (margin.top + 7) +  ")")
+        .attr("d", function(d){ return lineGen(d);})
+        .attr("stroke", function(d, i){return colorScale(i);})
+        .attr("stroke-width", 2)
+        .attr("fill", "none")    
+        .on("mouseout", function() { tooltip.style("display", "none"); }) 
+        .on("mousemove", function(d) {
+          var xPosition = d3.mouse(this)[0];
+          var yPosition = d3.mouse(this)[1];
+          var value = yScale.invert(yPosition);
+          tooltip.style("display", "block");
+          tooltip.attr("transform", "translate(" + xPosition + "," + (d3.mouse(this)[1] -25 + ")"));
+          tooltip.select("text").text( (+value).toFixed(3));
+        });
+     
+
+    var legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("x", width -150 )
+    .attr("y", 0)
+    .attr("height", 100)
+    .attr("width", 100);
+
+  legend.selectAll('g').data(dataArray)
+      .enter()
+      .append('g')
+      .each(function(d, i) {
+        var gg = d3.select(this);
+        gg.append("rect")
+          .attr("x", width - 150)
+          .attr("y", i*25)
+          .attr("width", 10)
+          .attr("height", 10)
+          .style("fill", colorScale(i));
+
+        gg.append("text")
+          .attr("x", width - 135)
+          .attr("y", i * 25 + 8)
+          .attr("height",30)
+          .attr("width",100)
+          .text(yAxisVar[i]);
+        });
+
+    });
+}
+</script>
