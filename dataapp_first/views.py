@@ -6,7 +6,7 @@ from django.shortcuts import render,redirect
 from bigquery import get_client
 from django.conf import settings
 from dataapp_first.forms import DocumentForm,UrlForm
-from dataapp_first.models import Document
+from dataapp_first.models import Document, SavedGraph
 from datacheck.settings import BASE_DIR
 import pandas as pd
 import json
@@ -97,10 +97,11 @@ def charting(request):
 
 
 def staging(request):
+    savedGraphs = SavedGraph.objects.all()
     connected = False
     if request.session.has_key('client'):
         connected = True
-    return render(request,'staging.html',{'connected':connected}) #for reporting
+    return render(request,'staging.html',{'connected':connected, 'savedGraphs':savedGraphs}) #for reporting
 
 
 def fileupload(request):
@@ -194,13 +195,40 @@ def docaccess(request):
             file = default_storage.open(url, 'rb')
 
             print(settings.BASE_DIR)
-
-            path = os.path.join(settings.BASE_DIR, 'static', 'dataset.csv')
+            name=url.split('/')
+            path = os.path.join(settings.BASE_DIR, 'static', 'dataset.'+name[len(name)-1])
             f = open(path, "w+b")
             f.truncate()
             f.write(file.read())
             f.close()
 
+            request.session['working_dataset'] = 'dataset.'+name[len(name)-1]
             #print (file.read())
             documents = Document.objects.all()
             return redirect('charting')
+
+
+def saveChartingGraph(request):
+    if request.method == 'POST':
+        newGraph = SavedGraph(graphDataset=request.POST['chartDataset'],
+                                graphType=request.POST['chartType'],
+                                graphTitle=request.POST['chartTitleSave'],
+                                graphXAxisLabel=request.POST['chartXAxisLabel'],
+                                graphYAxisLabel=request.POST['chartYAxisLabel'],
+                                graphXAxisVar=request.POST['chartXAxisVar'],
+                                graphYAxisVar=request.POST['chartYAxisVar'],
+                                graphOp=request.POST['chartOp'],
+                                graphHist=request.POST['chartHist'],)
+        newGraph.save()
+    return redirect('charting')
+
+def deleteChartingGraph(request):
+    if request.method == 'POST':
+        newGraph = SavedGraph.objects.all()
+        i=0
+        for n in newGraph:
+            if(i== int(request.POST['savedChartIndex'])):
+                print(n)
+                n.delete()
+            i+=1
+    return redirect('staging')

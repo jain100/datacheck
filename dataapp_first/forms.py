@@ -8,3 +8,5 @@ class DocumentForm(forms.Form):
 
 class UrlForm(forms.Form):
     url = forms.CharField(label='url', max_length=10000)
+
+    

@@ -243,6 +243,19 @@
                   <div class="modal-body">
                     <button id="change_chart_labels_button" type="button" 
                     class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#myModal2">Change Labels</button>
+                    <form action="{% url 'saveChartingGraph' %}"  name="saveChartingGraph" id="saveChartingGraph" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="chartDataset" id="chartDataset" />
+                        <input type="hidden" name="chartType" id="chartType" />
+                        <input type="hidden" name="chartXAxisLabel" id="chartXAxisLabel" />
+                        <input type="hidden" name="chartYAxisLabel" id="chartYAxisLabel" />
+                        <input type="hidden" name="chartTitleSave" id="chartTitleSave" />
+                        <input type="hidden" name="chartXAxisVar" id="chartXAxisVar" />
+                        <input type="hidden" name="chartYAxisVar" id="chartYAxisVar" />
+                        <input type="hidden" name="chartOp" id="chartOp" />
+                        <input type="hidden" name="chartHist" id="chartHist" />
+                        <input type="submit" class="btn btn-success" value="Save"  />
+                    </form>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   </div>
                 </div>
@@ -284,7 +297,7 @@
     </section>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src='{% static "jquery-3.2.1.min.js" %}'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
@@ -298,25 +311,98 @@
     <script type="text/javascript">
 
     var xAxisLabel = "";
+    if(sessionStorage.getItem("xAxisLabel")){
+        xAxisLabel = sessionStorage.getItem("xAxisLabel");
+    }
     var yAxisLabel = "";
+    if(sessionStorage.getItem("yAxisLabel")){
+        yAxisLabel = sessionStorage.getItem("yAxisLabel");
+    }
     var chartTitle = "";
+    if(sessionStorage.getItem("chartTitle")){
+        chartTitle = sessionStorage.getItem("chartTitle");
+    }
 
-    var barXVar = "";
-    var barYVar = "";
-    var barOp = "";
+    var barXVar = sessionStorage.getItem("barXVar");
+    var barYVar = sessionStorage.getItem("barYVar");
+    var barOp = sessionStorage.getItem("barOp");
 
-    var histXVar = "";
+    var histXVar = sessionStorage.getItem("histXVar");
     var globalHistBin = "";
+    if(sessionStorage.getItem("globalHistBin")){
+        globalHistBin = sessionStorage.getItem("globalHistBin");
+    }
 
-    var pieXVar = "";
-    var pieYVar = "";
-    var pieOp = "";
+    var pieXVar = sessionStorage.getItem("pieXVar");
+    var pieYVar = sessionStorage.getItem("pieYVar");
+    var pieOp = sessionStorage.getItem("pieOp");
 
-    var lineXVar = "";
-    var lineYVar = [];
-    var lineOp = "";
+    var lineXVar = sessionStorage.getItem("lineXVar");
+    if(sessionStorage.getItem("lineYVar")){
+        var lineYVar = (sessionStorage.getItem("lineYVar")).split(",");
+    }else{
+        var lineYVar = [];
+    }
+    var lineOp = sessionStorage.getItem("lineOp");
+
+    window.onunload = function() {
+        sessionStorage.setItem("xAxisLabel",xAxisLabel);
+        sessionStorage.setItem("yAxisLabel",yAxisLabel);
+        sessionStorage.setItem("chartTitle",chartTitle);
+
+        sessionStorage.setItem("barXVar",barXVar);
+        sessionStorage.setItem("barYVar",barYVar);
+        sessionStorage.setItem("barOp",barOp);
+
+        sessionStorage.setItem("histXVar",histXVar);
+        sessionStorage.setItem("globalHistBin",globalHistBin);
+
+        sessionStorage.setItem("pieXVar",pieXVar);
+        sessionStorage.setItem("pieYVar",pieYVar);
+        sessionStorage.setItem("pieOp",pieOp);
+
+        sessionStorage.setItem("lineXVar",lineXVar);
+        sessionStorage.setItem("lineYVar",lineYVar.join(","));
+        sessionStorage.setItem("lineOp",lineOp);
+
+    }
+
+    $('#saveChartingGraph').submit(function(){
+
+        document.getElementById('chartDataset').value = working_dataset;
+        document.getElementById('chartType').value = graph_type;
+
+        document.getElementById('chartXAxisLabel').value = xAxisLabel;
+        document.getElementById('chartYAxisLabel').value = yAxisLabel;
+        document.getElementById('chartTitleSave').value = chartTitle;
+        
+        if(graph_type=="bar"){
+            document.getElementById('chartXAxisVar').value = barXVar;
+            document.getElementById('chartYAxisVar').value = barYVar;
+            document.getElementById('chartOp').value = barOp;
+        }else if(graph_type=="histogram"){
+            document.getElementById('chartXAxisVar').value = histXVar;
+            document.getElementById('chartHist').value = globalHistBin;
+        }else if(graph_type=="pie"){
+            document.getElementById('chartXAxisVar').value = pieXVar;
+            document.getElementById('chartYAxisVar').value = pieYVar;
+            document.getElementById('chartOp').value = pieOp;
+        }else if(graph_type=="line"){
+            document.getElementById('chartXAxisVar').value = lineXVar;
+            document.getElementById('chartYAxisVar').value = lineYVar.join(",");
+            document.getElementById('chartOp').value = lineOp;
+        }
+
+        return true;
+    });
+
+
+    var working_dataset = "static/{{request.session.working_dataset}}";
+    var graph_type = "";
 
     function setGraphType(x){
+
+        graph_type = x;
 
         if(x=="bar") {
 
@@ -374,7 +460,7 @@
         var operation = barOp;
 
 
-        d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
+        d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
               var dataValues = d3.values(data)[0];
 
@@ -414,13 +500,17 @@
             d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
                 xAxisVar = this.value;
                 barXVar = xAxisVar;
-                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
             });
 
             for(var i=0; i<Object.keys(dataValues).length; i++ ){
                 if(document.getElementById('xOption'+i).value == barXVar){
                     d3.select('#xOption'+i).property('checked', true);
-                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                        changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    }
                 }
             }
 
@@ -446,13 +536,17 @@
             d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
                 yAxisVar = this.value;
                 barYVar = yAxisVar;
-                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
             });
 
             for(var i=0; i<Object.keys(dataValues).length; i++ ){
                 if(document.getElementById('yOption'+i).value == barYVar){
                     d3.select('#yOption'+i).property('checked', true);
-                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                        changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    }
                 }
             }
 
@@ -483,13 +577,17 @@
             d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
                 operation = this.value;
                 barOp = operation;
-                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
             });
 
             for(var i=0; i<4; i++ ){
                 if(document.getElementById('barOpOption'+i).value == barOp){
                     d3.select('#barOpOption'+i).property('checked', true);
-                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                        changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    }
                 }
             }
 
@@ -606,6 +704,7 @@
               .style("text-anchor", "middle")
               .text(xAxisLabel);
 
+
             d3.select('svg').append("text")
                 .attr("x", (width / 2))             
                 .attr("y", 0)
@@ -690,7 +789,7 @@
         var binCount = globalHistBin;
 
 
-        d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
+        d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
     
 
@@ -729,13 +828,17 @@
             d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
                 xAxisVar = this.value;
                 histXVar = xAxisVar;
-                changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                if(histXVar!="null" && globalHistBin != ""){
+                    changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                }
             });
 
             for(var i=0; i<Object.keys(dataValues).length; i++ ){
                 if(document.getElementById('xOption'+i).value == histXVar){
                     d3.select('#xOption'+i).property('checked', true);
-                    changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                    if(histXVar!="null" && globalHistBin != ""){
+                        changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                    }
                 }
             }
 
@@ -753,7 +856,9 @@
             sB.on('click', function(){
                 binCount = document.getElementById("histBins").value;
                 globalHistBin = binCount;
-                changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);  
+                if(histXVar!="null" && globalHistBin != ""){
+                    changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                }  
             });
         });
 
@@ -903,7 +1008,7 @@
         var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
             height = 550,
-            radius = Math.min(width, height) / 2;;
+            radius = Math.min(width, height) / 2;
 
         var svg = d3.select("#svgcontainer")
             .append("svg:svg")
@@ -925,10 +1030,10 @@
   
 
         var xAxisVar = pieXVar;
-        var yAxisVar=pieYVar;
+        var yAxisVar= pieYVar;
         var operation=pieOp;
 
-        d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
+        d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
               var dataValues = d3.values(data)[0];
 
@@ -969,7 +1074,9 @@
             d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
                 xAxisVar = this.value;
                 pieXVar = xAxisVar;
-                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                }
             });
 
 
@@ -977,7 +1084,9 @@
             for(var i=0; i<Object.keys(dataValues).length; i++ ){
                 if(document.getElementById('xOption'+i).value == pieXVar){
                     d3.select('#xOption'+i).property('checked', true);
-                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                        changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    }
                 }
             }
 
@@ -1004,14 +1113,18 @@
             d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
                 yAxisVar = this.value;
                 pieYVar = yAxisVar;
-                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                }
             });
 
 
             for(var i=0; i<Object.keys(dataValues).length; i++ ){
                 if(document.getElementById('yOption'+i).value == pieYVar){
                     d3.select('#yOption'+i).property('checked', true);
-                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                        changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    }
                 }
             }
 
@@ -1042,13 +1155,17 @@
             d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
                 operation = this.value;
                 pieOp=operation;
-                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                }
             });
 
             for(var i=0; i<4; i++ ){
                 if(document.getElementById('pieOpOption'+i).value == pieOp){
                     d3.select('#pieOpOption'+i).property('checked', true);
-                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                        changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    }
                 }
             }
 
@@ -1066,6 +1183,7 @@
 
         function changePie(data, xAxisVar, yAxisVar, operation, chartTitle){
             d3.selectAll("svg > *").remove();
+
 
             svg.append('text')
             .attr('id','menu_icon')
@@ -1126,7 +1244,6 @@
 
             var newData = pie(map);
 
-            console.log(newData);
 
             var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
             colorScale.domain(newData.map(function (d){ return d.data.key; }));
@@ -1246,7 +1363,7 @@
 
 
 
-        d3.csv("{% static 'dataset.csv' %}"+'?' + Math.floor(Math.random() * 1000), function(error, data){
+        d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
               var dataValues = d3.values(data)[0];
 
@@ -1287,7 +1404,9 @@
             d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
                 xAxisVar = this.value;
                 lineXVar = xAxisVar;
-                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(lineXVar!="null" && lineYVar[0] !="null" && lineOp !="null"){
+                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
             });
 
 
@@ -1295,7 +1414,9 @@
             for(var i=0; i<Object.keys(dataValues).length; i++ ){
                 if(document.getElementById('xOption'+i).value == lineXVar){
                     d3.select('#xOption'+i).property('checked', true);
-                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
+                        changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    }
                 }
             }
 
@@ -1333,7 +1454,9 @@
                         lineYVar.splice(index, 1);
                     }
                 }
-                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
+                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
             });
                       
              d3.select('#chart_operations_list')
@@ -1345,7 +1468,9 @@
                 for(var ii=0; ii<lineYVar.length; ii++){
                    if(document.getElementById('yOption'+i).value == lineYVar[ii]){
                         d3.select('#yOption'+i).property('checked', true);
-                        changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                        if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
+                            changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                        }
                     }
                 }
             }
@@ -1371,13 +1496,17 @@
             d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
                 operation = this.value;
                 lineOp = operation;
-                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
+                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                }
             });
 
             for(var i=0; i<4; i++ ){
                 if(document.getElementById('lineOpOption'+i).value == lineOp){
                     d3.select('#lineOpOption'+i).property('checked', true);
-                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
+                        changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    }
                 }
             }
 
