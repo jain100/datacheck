@@ -122,45 +122,25 @@
         #change_bins_button{
             float: left;
         }
+        .website_name{
+            padding: 0 20px;
+            font-size: 24px;
+            color: white;
+        }
     </style>
   </head>
   <body>
      <form method="post" id="queryform" enctype="multipart/form-data">{% csrf_token %}</form>
     <section class="sec point" id="sec1">
         <div class="row">
-            {% if connected == True %}
             <div class="col-md-4 col-sm-4">
-                <div class="dropdown">
-                    <div class="point-center">
-                        {% comment %}<button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
-                            Games
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">No Game :(</a>
-                        </div>{% endcomment %}
-                         
-                        <a href={% url 'logout' %}>
-                            <input type="button" value="logout" />
-                        </a>
-                        
-                    </div>
-                </div>
+                <div class="website_name"><h2>Dizz Data</h2></div>
             </div>
-            {% endif %}
-
-
-
-        {% if connected == True %}
-                 <div class="col-md-4 col-sm-4">
-                <div class="point-center">
-                    <button type="submit" class="btn-default" >
-                       Connected
-                    </button>
-                </div>
-            </div>
-            {% endif %}
             
-            <div class="col-md-4 col-sm-4 right">
+            <div class="col-md-4 col-sm-4">
+            </div>
+
+            <div class="col-md-4 col-sm-4">
                     <div class="dropdown">
                         <div class="point-center">
                             <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
@@ -169,6 +149,9 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{% url 'signin' %}">BigQuery</a>
                                 <a class="dropdown-item" href="{% url 'uploadcsv' %}">Upload CSV</a>
+                                {% if connected == True %}
+                                  <a class="dropdown-item" href={% url 'logout' %}>Logout</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -194,12 +177,13 @@
             <div id="sec3-sql" class="col-md-8 col-sm-8">
                 {% if savedGraphs %}
                   {% for graph in savedGraphs %}
-                    <div class="main2 svgcontainer" style="margin-top: 50px; height: 800px; ">
+                    <div class="main2 svgcontainer" style="margin-top: 50px;">
                         <form action="{% url 'deleteChartingGraph' %}"  
                             name="deleteChartingGraph" id="deleteChartingGraph" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" name="savedChartIndex" class="savedChartIndex" />
-                            <input type="submit" class="btn btn-danger" value="Delete"  />
+                            <input type="submit" class="btn btn-danger" id="deleteChartingGraphButton" 
+                            value="X" style="display: none; float: right;" />
                         </form>
                         <input type="hidden" class="graphDataset" value="{{ graph.graphDataset }}" />
                         <input type="hidden" class="graphType" value="{{ graph.graphType }}" />
@@ -212,11 +196,12 @@
                         <input type="hidden" class="graphYAxisVar" value="{{ graph.graphYAxisVar }}" />
                         <input type="hidden" class="graphOp" value="{{ graph.graphOp }}" />
                         <input type="hidden" class="graphHist" value="{{ graph.graphHist }}" />
+                        <input type="hidden" class="graphHeight" value="{{ graph.graphHeight }}" />
+                        <input type="hidden" class="graphWidth" value="{{ graph.graphWidth }}" />
                     </div>
                   {% endfor %}
                 {% endif %}
             </div>  
-
 
         </div>
     </section>
@@ -236,13 +221,51 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
     <script type="text/javascript">
+
+
+        window.onunload = function () {
+            document.getElementById("savedGraphAttributes").value = widthHeightArr.join(",");
+            document.getElementById("savedGraphAttributesForm").submit();
+        };
+
+
+        widthHeightArr = [];
+
+
+
         $(document).ready(function(){
 
+            $('.svgcontainer').mouseover(function(){
+                $(this).find('#deleteChartingGraphButton').css('display', 'block');
+            });
+
+            $('.svgcontainer').mouseout(function(){
+                $(this).find('#deleteChartingGraphButton').css('display', 'none');
+            });
+
             $(function () {
-                $('.svgcontainer').draggable().resizable({handles: 'n, e, s, w, ne, se, sw, nw'});
+                $('.svgcontainer').draggable()
+                    .resizable({handles: 'n, e, s, w, ne, se, sw, nw',
+                        stop: function(event, ui) {
+                        var w = ui.size.width;
+                        var h = ui.size.height;
+                        widthHeightArr[+event.target.id.substring(14)] = w+ " " + h;
+                        $.ajax({
+                            url: "{% url 'saveGraphStateStaging' %}",
+                            type: "post",
+                            data: {
+                              'savedGraphAttributes': widthHeightArr.join(","),
+                            },
+                            success: function (data) {
+                              return;
+                            }
+                        });
+                    }
+                });
             });
             var allGraphs = document.getElementsByClassName('svgcontainer');
             for(var jj=0; jj<allGraphs.length; jj++){
+                allGraphs[jj].id="svgcontainerID" + jj;
                 var graphDataset = allGraphs[jj].getElementsByClassName('graphDataset')[0].value;
                 var graphType = allGraphs[jj].getElementsByClassName('graphType')[0].value;
 
@@ -254,8 +277,9 @@
                 var graphYAxisVar = allGraphs[jj].getElementsByClassName('graphYAxisVar')[0].value;
                 var graphOp = allGraphs[jj].getElementsByClassName('graphOp')[0].value;
                 var graphHist = allGraphs[jj].getElementsByClassName('graphHist')[0].value;
-
-
+                allGraphs[jj].style.height = allGraphs[jj].getElementsByClassName('graphHeight')[0].value + "px";
+                allGraphs[jj].style.width = allGraphs[jj].getElementsByClassName('graphWidth')[0].value + "px";
+                widthHeightArr[jj] = allGraphs[jj].width + " " + allGraphs[jj].height + " " + jj;
                 if(graphType == "bar"){
                     drawGraph(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset)
                     
@@ -409,7 +433,7 @@
 
                     svg.append("text")
                         .attr("x", (width / 2))             
-                        .attr("y", 0)
+                        .attr("y", -75)
                         .attr("text-anchor", "middle")  
                         .style("font-size", "16px") 
                         .style("text-decoration", "underline")  
@@ -564,7 +588,7 @@
 
        svg.append("text")
         .attr("x", (width / 2))             
-        .attr("y", 0)
+        .attr("y", -75)
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
         .style("text-decoration", "underline")  
@@ -724,7 +748,7 @@
 
                 svg.append("text")
                 .attr("x", (width / 2))             
-                .attr("y", 0)
+                .attr("y", -75)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -735,6 +759,34 @@
 
                 var tooltip = svg.append("g")
             .style("display", "none");
+
+             var legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("x", width -50 )
+            .attr("y", 0)
+            .attr("height", 100)
+            .attr("width", 100);
+
+          legend.selectAll('g').data(newData)
+              .enter()
+              .append('g')
+              .each(function(d, i) {
+                var gg = d3.select(this);
+                gg.append("rect")
+                  .attr("x", width - 50)
+                  .attr("y", i*25)
+                  .attr("width", 10)
+                  .attr("height", 10)
+                  .style("fill", colorScale(d.data.key));
+
+                gg.append("text")
+                  .attr("x", width - 35)
+                  .attr("y", i * 25 + 10)
+                  .attr("height",30)
+                  .attr("width",100)
+                  .text(d.data.key);
+
+              });
               
             tooltip.append("rect")
             .attr("width", 60)
@@ -871,7 +923,7 @@
 
             svg.append("text")
                 .attr("x", (width / 2))             
-                .attr("y", 0)
+                .attr("y", -75)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  

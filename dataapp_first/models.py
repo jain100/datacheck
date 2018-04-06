@@ -18,3 +18,6 @@ class SavedGraph(models.Model):
     graphYAxisVar = models.CharField(max_length=2000,)
     graphOp = models.CharField(max_length=255,)
     graphHist = models.CharField(max_length=255,)
+
+    graphHeight = models.CharField(max_length=255,)
+    graphWidth = models.CharField(max_length=255,)

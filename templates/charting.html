@@ -85,34 +85,34 @@
             float: left;
         }
         .checkbox_options_x{
-            height: 18px;
-          width: 18px;
+            height: 16px;
+          width: 16px;
           background-color: #eee;
         }
         .checkbox_options_y{
-            height: 18px;
-          width: 18px;
+            height: 16px;
+          width: 16px;
           background-color: #eee;
         }
         .checkbox_options_label_x{
-            font-size: 18px;
+            font-size: 14px;
             margin-left: 5px;
         }
         .checkbox_options_label_y{
-            font-size: 18px;
+            font-size: 14px;
             margin-left: 5px;
         }
         .checkbox_operations{
-            height: 18px;
-          width: 18px;
+            height: 16px;
+          width: 16px;
           background-color: #eee;
         }
         .checkbox_operations_label{
-            font-size: 18px;
+            font-size: 14px;
             margin-left: 5px;
         }
         input[type="radio"] {
-          margin-top: -5px;
+          margin-top: -3px;
           vertical-align: middle;
         }
         #histBins{
@@ -122,33 +122,29 @@
         #change_bins_button{
             float: left;
         }
+        #menu_icon{
+            float: right;
+            width: 24px;
+            font-size: 24px;
+            margin-right: 3px;
+        }
+        .dropdown-toggle2::after {
+            display:none !important;
+        }
+        .website_name{
+            padding: 0 20px;
+            font-size: 24px;
+            color: white;
+        }
     </style>
   </head>
   <body onload="setGraphType('bar')">
      <form method="post" id="queryform" enctype="multipart/form-data">{% csrf_token %}</form>
     <section class="sec point" id="sec1">
         <div class="row">
-            {% if connected == True %}
             <div class="col-md-4 col-sm-4">
-                <div class="dropdown">
-                    <div class="point-center">
-                        {% comment %}<button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
-                            Games
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">No Game :(</a>
-                        </div>{% endcomment %}
-                         
-                        <a href={% url 'logout' %}>
-                            <input type="button" value="logout" />
-                        </a>
-                        
-                    </div>
-                </div>
+                <div class="website_name"><h2>Dizz Data</h2></div>
             </div>
-            {% endif %}
-
-
             <div class="col-md-4 col-sm-4">
                 <div class="dropdown">
                     <div class="point-center">
@@ -171,18 +167,8 @@
                     </div>
                 </div>
             </div>
-
-        {% if connected == True %}
-                 <div class="col-md-4 col-sm-4">
-                <div class="point-center">
-                    <button type="submit" class="btn-default" >
-                       Connected
-                    </button>
-                </div>
-            </div>
-            {% endif %}
             
-            <div class="col-md-4 col-sm-4 right">
+            <div class="col-md-4 col-sm-4">
                     <div class="dropdown">
                         <div class="point-center">
                             <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
@@ -191,6 +177,9 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{% url 'signin' %}">BigQuery</a>
                                 <a class="dropdown-item" href="{% url 'uploadcsv' %}">Upload CSV</a>
+                                {% if connected == True %}
+                                  <a class="dropdown-item" href={% url 'logout' %}>Logout</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -229,21 +218,11 @@
                 </div>
 
                 <div class="main2" id="svgcontainer">
-                </div>
-            </div>  
-
-
-        </div>
-    </section>
-
-    <section>
-        <div id="myModal1" class="modal fade modal_menu_options" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-body">
-                    <button id="change_chart_labels_button" type="button" 
-                    class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#myModal2">Change Labels</button>
-                    <form action="{% url 'saveChartingGraph' %}"  name="saveChartingGraph" id="saveChartingGraph" method="post" enctype="multipart/form-data">
+                    <div id="menu_icon" class="dropdown-toggle dropdown-toggle2" data-toggle="dropdown"><i class="fa fa-bars"></i> </div>
+                    <ul class="dropdown-menu chartOptionsMenu" style="padding: 0;">
+                        <li class="modal1Options"><button id="change_chart_labels_button" type="button" style="width: 158px;" 
+                    class="btn btn-default" onclick="changeLabelsOptionSelected(event)">Change Labels</button></li>
+                        <li class="modal1Options"><form action="{% url 'saveChartingGraph' %}"  name="saveChartingGraph" id="saveChartingGraph" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input type="hidden" name="chartDataset" id="chartDataset" />
                         <input type="hidden" name="chartType" id="chartType" />
@@ -254,14 +233,26 @@
                         <input type="hidden" name="chartYAxisVar" id="chartYAxisVar" />
                         <input type="hidden" name="chartOp" id="chartOp" />
                         <input type="hidden" name="chartHist" id="chartHist" />
-                        <input type="submit" class="btn btn-success" value="Save"  />
-                    </form>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  </div>
+                        <input type="submit" style="width: 158px;" class="btn btn-success" value="Save"  />
+                    </form></li>
+                    <li class="modal2Options" style="display: none; width: 158px;"><input style="width: 158px;" class="label_input" type="text" name="chartTitle" id="chartTitle" placeholder="Chart Title"></li>
+                    <br >
+                    <li class="modal2Options" style="display: none; width: 158px;"><input style="width: 158px;"  class="label_input" type="text" name="xAxisLabel" id="xAxisLabel" placeholder="xAxisLabel"></li>
+                    <br>
+                    <li class="modal2Options" style="display: none; width: 158px;"><input style="width: 158px;"  class="label_input" type="text" name="yAxisLabel" id="yAxisLabel" placeholder="yAxisLabel"></li>
+                    <br>
+                    <li class="modal2Options" style="display: none; width: 158px;"><button style="width: 158px;"  type="button" class="btn btn-success" id="change_label_button" onclick="modal2OptionsClose(event)">Change Label</button></li>
+                    <br>
+                    <li class="modal2Options" style="display: none; width: 158px;"><button style="width: 158px;"  type="button" class="btn btn-default" id="change_label_button" onclick="modal2OptionsClose(event)">Close</button></li>
+                    </ul>
                 </div>
-            </div>
-        </div>
+            </div>  
 
+
+        </div>
+    </section>
+
+    <section>
         <div id="myModal2" class="modal fade modal_label_inputs" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -310,17 +301,62 @@
 
     <script type="text/javascript">
 
-    var xAxisLabel = "";
-    if(sessionStorage.getItem("xAxisLabel")){
-        xAxisLabel = sessionStorage.getItem("xAxisLabel");
+        function changeLabelsOptionSelected(event){
+            $('.modal2Options').css("display", "block");
+            $('.modal1Options').css("display", "none");
+            event.stopPropagation();
+        }
+
+        function modal2OptionsClose(event){
+            $('.modal2Options').css("display", "none");
+            $('.modal1Options').css("display", "block");
+            event.stopPropagation();
+        }
+
+
+    var barxAxisLabel = "";
+    if(sessionStorage.getItem("barxAxisLabel")){
+        barxAxisLabel = sessionStorage.getItem("barxAxisLabel");
     }
-    var yAxisLabel = "";
-    if(sessionStorage.getItem("yAxisLabel")){
-        yAxisLabel = sessionStorage.getItem("yAxisLabel");
+    var baryAxisLabel = "";
+    if(sessionStorage.getItem("baryAxisLabel")){
+        baryAxisLabel = sessionStorage.getItem("baryAxisLabel");
     }
-    var chartTitle = "";
-    if(sessionStorage.getItem("chartTitle")){
-        chartTitle = sessionStorage.getItem("chartTitle");
+    var barchartTitle = "";
+    if(sessionStorage.getItem("barchartTitle")){
+        barchartTitle = sessionStorage.getItem("barchartTitle");
+    }
+
+    var histxAxisLabel = "";
+    if(sessionStorage.getItem("histxAxisLabel")){
+        histxAxisLabel = sessionStorage.getItem("histxAxisLabel");
+    }
+    var histyAxisLabel = "";
+    if(sessionStorage.getItem("histyAxisLabel")){
+        histyAxisLabel = sessionStorage.getItem("histyAxisLabel");
+    }
+    var histchartTitle = "";
+    if(sessionStorage.getItem("histchartTitle")){
+        histchartTitle = sessionStorage.getItem("histchartTitle");
+    }
+
+    var piechartTitle = "";
+    if(sessionStorage.getItem("piechartTitle")){
+        piechartTitle = sessionStorage.getItem("piechartTitle");
+    }
+
+
+    var linexAxisLabel = "";
+    if(sessionStorage.getItem("linexAxisLabel")){
+        linexAxisLabel = sessionStorage.getItem("linexAxisLabel");
+    }
+    var lineyAxisLabel = "";
+    if(sessionStorage.getItem("lineyAxisLabel")){
+        lineyAxisLabel = sessionStorage.getItem("lineyAxisLabel");
+    }
+    var linechartTitle = "";
+    if(sessionStorage.getItem("linechartTitle")){
+        linechartTitle = sessionStorage.getItem("linechartTitle");
     }
 
     var barXVar = sessionStorage.getItem("barXVar");
@@ -346,9 +382,19 @@
     var lineOp = sessionStorage.getItem("lineOp");
 
     window.onunload = function() {
-        sessionStorage.setItem("xAxisLabel",xAxisLabel);
-        sessionStorage.setItem("yAxisLabel",yAxisLabel);
-        sessionStorage.setItem("chartTitle",chartTitle);
+        sessionStorage.setItem("barxAxisLabel",barxAxisLabel);
+        sessionStorage.setItem("baryAxisLabel",baryAxisLabel);
+        sessionStorage.setItem("barchartTitle",barchartTitle);
+
+        sessionStorage.setItem("histxAxisLabel",histxAxisLabel);
+        sessionStorage.setItem("histyAxisLabel",histyAxisLabel);
+        sessionStorage.setItem("histchartTitle",histchartTitle);
+
+        sessionStorage.setItem("piechartTitle",piechartTitle);
+
+        sessionStorage.setItem("linexAxisLabel",linexAxisLabel);
+        sessionStorage.setItem("lineyAxisLabel",lineyAxisLabel);
+        sessionStorage.setItem("linechartTitle",linechartTitle);
 
         sessionStorage.setItem("barXVar",barXVar);
         sessionStorage.setItem("barYVar",barYVar);
@@ -372,22 +418,34 @@
         document.getElementById('chartDataset').value = working_dataset;
         document.getElementById('chartType').value = graph_type;
 
-        document.getElementById('chartXAxisLabel').value = xAxisLabel;
-        document.getElementById('chartYAxisLabel').value = yAxisLabel;
-        document.getElementById('chartTitleSave').value = chartTitle;
-        
         if(graph_type=="bar"){
+            document.getElementById('chartXAxisLabel').value = barxAxisLabel;
+            document.getElementById('chartYAxisLabel').value = baryAxisLabel;
+            document.getElementById('chartTitleSave').value = barchartTitle;
+
             document.getElementById('chartXAxisVar').value = barXVar;
             document.getElementById('chartYAxisVar').value = barYVar;
             document.getElementById('chartOp').value = barOp;
         }else if(graph_type=="histogram"){
+            document.getElementById('chartXAxisLabel').value = histxAxisLabel;
+            document.getElementById('chartYAxisLabel').value = histyAxisLabel;
+            document.getElementById('chartTitleSave').value = histchartTitle;
+
             document.getElementById('chartXAxisVar').value = histXVar;
             document.getElementById('chartHist').value = globalHistBin;
         }else if(graph_type=="pie"){
+            document.getElementById('chartXAxisLabel').value = "";
+            document.getElementById('chartYAxisLabel').value = "";
+            document.getElementById('chartTitleSave').value = piechartTitle;
+
             document.getElementById('chartXAxisVar').value = pieXVar;
             document.getElementById('chartYAxisVar').value = pieYVar;
             document.getElementById('chartOp').value = pieOp;
         }else if(graph_type=="line"){
+            document.getElementById('chartXAxisLabel').value = linexAxisLabel;
+            document.getElementById('chartYAxisLabel').value = lineyAxisLabel;
+            document.getElementById('chartTitleSave').value = linechartTitle;
+
             document.getElementById('chartXAxisVar').value = lineXVar;
             document.getElementById('chartYAxisVar').value = lineYVar.join(",");
             document.getElementById('chartOp').value = lineOp;
@@ -434,15 +492,6 @@
             .attr("height", "100%")
             .attr("viewBox", "0 0 " + width + " " + height);
 
-        svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' }); 
 
         var yScale = d3.scaleLinear()
             .range([height - margin.top - margin.bottom, 0]);
@@ -472,11 +521,11 @@
 
                 d3.select('#chart_variables_list_x')
                     .append('h6')
-                    .text('Categorical');
+                    .text('X-Axis');
 
                 d3.select('#chart_variables_list_y')
                     .append('h6')
-                    .text('Value');
+                    .text('Y-Axis');
 
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
                  d3.select('#chart_variables_list_x')
@@ -501,7 +550,7 @@
                 xAxisVar = this.value;
                 barXVar = xAxisVar;
                 if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
                 }
             });
 
@@ -509,7 +558,7 @@
                 if(document.getElementById('xOption'+i).value == barXVar){
                     d3.select('#xOption'+i).property('checked', true);
                     if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                        changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                        changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
                     }
                 }
             }
@@ -537,7 +586,7 @@
                 yAxisVar = this.value;
                 barYVar = yAxisVar;
                 if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
                 }
             });
 
@@ -545,7 +594,7 @@
                 if(document.getElementById('yOption'+i).value == barYVar){
                     d3.select('#yOption'+i).property('checked', true);
                     if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                        changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                        changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
                     }
                 }
             }
@@ -554,7 +603,7 @@
             d3.select('#chart_operations_list')
                     .append('h6')
                     .style('margin-top', '30px')
-                    .text('Operation');
+                    .text('Aggregation Function');
 
             var opArray = ['Sum', 'Average', 'Max', 'Min'];
 
@@ -578,7 +627,7 @@
                 operation = this.value;
                 barOp = operation;
                 if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                    changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
                 }
             });
 
@@ -586,32 +635,25 @@
                 if(document.getElementById('barOpOption'+i).value == barOp){
                     d3.select('#barOpOption'+i).property('checked', true);
                     if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                        changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                        changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
                     }
                 }
             }
 
 
             sLabel.on('click', function(){
-                chartTitle = document.getElementById("chartTitle").value;
-                xAxisLabel = document.getElementById("xAxisLabel").value;
-                yAxisLabel = document.getElementById("yAxisLabel").value;
-                changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(graph_type == 'bar'){
+                    barchartTitle = document.getElementById("chartTitle").value;
+                    barxAxisLabel = document.getElementById("xAxisLabel").value;
+                    baryAxisLabel = document.getElementById("yAxisLabel").value;
+                    changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
+                }
             });
 
         });
 
         function changeGraph(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle){
           d3.selectAll("svg > *").remove();
-            svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' }); 
 
             var dataNew;
             if(operation == "Average") {
@@ -707,7 +749,7 @@
 
             d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", 0)
+                .attr("y", -50)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -765,17 +807,6 @@
             .attr("viewBox", "0 0 " + width + " " + height);
 
 
-        svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' }); 
-
-
         var yScale = d3.scaleLinear()
             .range([height - margin.top - margin.bottom, 0]);
 
@@ -804,7 +835,7 @@
 
               d3.select('#chart_variables_list_x')
                     .append('h6')
-                    .text('Categorical');
+                    .text('X-Axis');
 
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
                  d3.select('#chart_variables_list_x')
@@ -829,7 +860,7 @@
                 xAxisVar = this.value;
                 histXVar = xAxisVar;
                 if(histXVar!="null" && globalHistBin != ""){
-                    changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                    changeHisto(data, xAxisVar, histxAxisLabel, histyAxisLabel, histchartTitle, binCount);
                 }
             });
 
@@ -837,7 +868,7 @@
                 if(document.getElementById('xOption'+i).value == histXVar){
                     d3.select('#xOption'+i).property('checked', true);
                     if(histXVar!="null" && globalHistBin != ""){
-                        changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                        changeHisto(data, xAxisVar, histxAxisLabel, histyAxisLabel, histchartTitle, binCount);
                     }
                 }
             }
@@ -847,17 +878,19 @@
               
 
             sLabel.on('click', function(){
-                chartTitle = document.getElementById("chartTitle").value;
-                xAxisLabel = document.getElementById("xAxisLabel").value;
-                yAxisLabel = document.getElementById("yAxisLabel").value;
-                changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount); 
+                if(graph_type == 'histogram'){
+                    histchartTitle = document.getElementById("chartTitle").value;
+                    histxAxisLabel = document.getElementById("xAxisLabel").value;
+                    histyAxisLabel = document.getElementById("yAxisLabel").value;
+                    changeHisto(data, xAxisVar, histxAxisLabel, histyAxisLabel, histchartTitle, binCount); 
+                }
             });
 
             sB.on('click', function(){
                 binCount = document.getElementById("histBins").value;
                 globalHistBin = binCount;
                 if(histXVar!="null" && globalHistBin != ""){
-                    changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount);
+                    changeHisto(data, xAxisVar, histxAxisLabel, histyAxisLabel, histchartTitle, binCount);
                 }  
             });
         });
@@ -866,15 +899,6 @@
         function changeHisto(data, xAxisVar, xAxisLabel, yAxisLabel, chartTitle, binCount){
             d3.selectAll("svg > *").remove();
 
-            svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' }); 
 
             var dataNew;
             var map = data.map(function(d){ return +d[xAxisVar]});
@@ -960,7 +984,7 @@
 
                 d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", 0)
+                .attr("y", -50)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -1015,17 +1039,6 @@
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", "0 0 " + width + " " + height);
-
-
-        svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' });  
         
   
 
@@ -1046,11 +1059,11 @@
 
               d3.select('#chart_variables_list_x')
                     .append('h6')
-                    .text('Categorical');
+                    .text('X-Axis');
 
                 d3.select('#chart_variables_list_y')
                     .append('h6')
-                    .text('Value');
+                    .text('Y-Axis');
 
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
                  d3.select('#chart_variables_list_x')
@@ -1075,7 +1088,7 @@
                 xAxisVar = this.value;
                 pieXVar = xAxisVar;
                 if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
                 }
             });
 
@@ -1085,7 +1098,7 @@
                 if(document.getElementById('xOption'+i).value == pieXVar){
                     d3.select('#xOption'+i).property('checked', true);
                     if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                        changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                        changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
                     }
                 }
             }
@@ -1114,7 +1127,7 @@
                 yAxisVar = this.value;
                 pieYVar = yAxisVar;
                 if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
                 }
             });
 
@@ -1123,7 +1136,7 @@
                 if(document.getElementById('yOption'+i).value == pieYVar){
                     d3.select('#yOption'+i).property('checked', true);
                     if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                        changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                        changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
                     }
                 }
             }
@@ -1132,7 +1145,7 @@
             d3.select('#chart_operations_list')
                     .append('h6')
                     .style('margin-top', '30px')
-                    .text('Operation');
+                    .text('Aggregation Function');
 
             var opArray = ['Sum', 'Average', 'Max', 'Min'];
 
@@ -1156,7 +1169,7 @@
                 operation = this.value;
                 pieOp=operation;
                 if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                    changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                    changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
                 }
             });
 
@@ -1164,17 +1177,18 @@
                 if(document.getElementById('pieOpOption'+i).value == pieOp){
                     d3.select('#pieOpOption'+i).property('checked', true);
                     if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                        changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                        changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
                     }
                 }
             }
 
 
             sLabel.on('click', function(){
-                chartTitle = document.getElementById("chartTitle").value;
-                xAxisLabel = document.getElementById("xAxisLabel").value;
-                yAxisLabel = document.getElementById("yAxisLabel").value;
-                changePie(data, xAxisVar, yAxisVar, operation, chartTitle);
+                if(graph_type == 'pie'){
+                    piechartTitle = document.getElementById("chartTitle").value;
+                
+                    changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
+                }
             });
 
 
@@ -1182,18 +1196,7 @@
 
 
         function changePie(data, xAxisVar, yAxisVar, operation, chartTitle){
-            d3.selectAll("svg > *").remove();
-
-
-            svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' }); 
+            d3.selectAll("svg > *").remove(); 
 
             var map; 
             if(operation == "Average") {
@@ -1282,13 +1285,42 @@
 
                 d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", 0)
+                .attr("y", -50)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
                 .style("font-size", "24px")
                 .style("font-weight", "bold")
                 .text(chartTitle);
+
+
+            var legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("x", width -50 )
+            .attr("y", 0)
+            .attr("height", 100)
+            .attr("width", 100);
+
+          legend.selectAll('g').data(newData)
+              .enter()
+              .append('g')
+              .each(function(d, i) {
+                var gg = d3.select(this);
+                gg.append("rect")
+                  .attr("x", width - 50)
+                  .attr("y", i*25)
+                  .attr("width", 10)
+                  .attr("height", 10)
+                  .style("fill", colorScale(d.data.key));
+
+                gg.append("text")
+                  .attr("x", width - 35)
+                  .attr("y", i * 25 + 10)
+                  .attr("height",30)
+                  .attr("width",100)
+                  .text(d.data.key);
+
+              });
 
 
                 var tooltip = svg.append("g")
@@ -1335,17 +1367,7 @@
             .append("svg:svg")
             .attr("width", "100%")
             .attr("height", "100%")
-            .attr("viewBox", "0 0 " + width + " " + height);
-
-        svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' }); 
+            .attr("viewBox", "0 0 " + width + " " + height); 
 
         var yScale = d3.scaleLinear()
             .range([height - margin.top - margin.bottom, 0]);
@@ -1376,11 +1398,11 @@
 
                d3.select('#chart_variables_list_x')
                     .append('h6')
-                    .text('Categorical');
+                    .text('X-Axis');
 
                 d3.select('#chart_variables_list_y')
                     .append('h6')
-                    .text('Value');
+                    .text('Y-Axis');
 
               for(var i=0; i<Object.keys(dataValues).length; i++ ){
                  d3.select('#chart_variables_list_x')
@@ -1405,7 +1427,7 @@
                 xAxisVar = this.value;
                 lineXVar = xAxisVar;
                 if(lineXVar!="null" && lineYVar[0] !="null" && lineOp !="null"){
-                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
                 }
             });
 
@@ -1415,7 +1437,7 @@
                 if(document.getElementById('xOption'+i).value == lineXVar){
                     d3.select('#xOption'+i).property('checked', true);
                     if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
-                        changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                        changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
                     }
                 }
             }
@@ -1455,21 +1477,21 @@
                     }
                 }
                 if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
-                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
                 }
             });
                       
              d3.select('#chart_operations_list')
                     .append('h6')
                     .style('margin-top', '30px')
-                    .text('Operation');
+                    .text('Aggregation Function');
 
             for(var i=0; i<Object.keys(dataValues).length; i++ ){
                 for(var ii=0; ii<lineYVar.length; ii++){
                    if(document.getElementById('yOption'+i).value == lineYVar[ii]){
                         d3.select('#yOption'+i).property('checked', true);
                         if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
-                            changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                            changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
                         }
                     }
                 }
@@ -1497,7 +1519,7 @@
                 operation = this.value;
                 lineOp = operation;
                 if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
-                    changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                    changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
                 }
             });
 
@@ -1505,32 +1527,24 @@
                 if(document.getElementById('lineOpOption'+i).value == lineOp){
                     d3.select('#lineOpOption'+i).property('checked', true);
                     if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
-                        changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                        changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
                     }
                 }
             }
 
             sLabel.on('click', function(){
-                chartTitle = document.getElementById("chartTitle").value;
-                xAxisLabel = document.getElementById("xAxisLabel").value;
-                yAxisLabel = document.getElementById("yAxisLabel").value;
-                changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
+                if(graph_type == 'line'){
+                    linechartTitle = document.getElementById("chartTitle").value;
+                    linexAxisLabel = document.getElementById("xAxisLabel").value;
+                    lineyAxisLabel = document.getElementById("yAxisLabel").value;
+                    changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
+                }
             });
 
         });
 
         function changeLines(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle){
           d3.selectAll("svg > *").remove();
-
-          svg.append('text')
-            .attr('id','menu_icon')
-            .attr('font-family', 'FontAwesome')
-            .attr('data-toggle', "modal")
-            .attr('data-target', "#myModal1")
-            .attr("x", width - 40)
-            .attr("y", -15)
-            .attr('font-size', function(d) { return 28+'px'} )
-            .text(function(d) { return '\uf0c9' }); 
 
             var dataNew;
 
@@ -1604,7 +1618,7 @@
 
             d3.select('svg').append("text")
                 .attr("x", (width / 2))             
-                .attr("y", 0)
+                .attr("y", -50)
                 .attr("text-anchor", "middle")  
                 .style("font-size", "16px") 
                 .style("text-decoration", "underline")  
@@ -1750,7 +1764,7 @@
 
         gg.append("text")
           .attr("x", width - 135)
-          .attr("y", i * 25 + 8)
+          .attr("y", i * 25 + 10)
           .attr("height",30)
           .attr("width",100)
           .text(yAxisVar[i]);

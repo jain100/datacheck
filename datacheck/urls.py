@@ -29,4 +29,5 @@ urlpatterns = [
     re_path('docaccess$', views.docaccess,name='docaccess'),
     re_path('saveChartingGraph$', views.saveChartingGraph,name='saveChartingGraph'),
     re_path('deleteChartingGraph$', views.deleteChartingGraph,name='deleteChartingGraph'),
+    re_path('saveGraphStateStaging$', views.saveGraphStateStaging,name='saveGraphStateStaging'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
