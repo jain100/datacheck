@@ -8,36 +8,26 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="{% static "style.css" %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <link rel="icon" type="image/jpeg" href='{% static "Icon/logo.png" %}'>
 
     <title>Dashboarding Product | DizzData</title>
+    <style type="text/css">
+      .website_name{
+            padding: 0 20px;
+            font-size: 24px;
+            color: white;
+        }
+    </style>
   </head>
   <body>
      <form method="post" id="queryform" enctype="multipart/form-data">{% csrf_token %}</form>
     <section class="sec point" id="sec1">
         <div class="row">
             <div class="col-md-4 col-sm-4">
-                <div class="dropdown">
-                    <div class="point-center">
-                       {% comment %}
-                       <button type="button" id="drop" class="btn dropdown-toggle" data-toggle="dropdown">
-                            Games
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">No Game :(</a>
-                        </div>
-                        {% endcomment %}
-                        {% if connected == True %}
-                        <a href={% url 'logout' %}>
-                            <input type="button" value="logout" />
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
+                <div class="website_name"><h2>Dizz Data</h2></div>
             </div>
             <div class="col-md-4 col-sm-4">
                 <div class="point-center">
@@ -47,15 +37,6 @@
                     </button>
                 </div>
             </div>
-            {% if connected == True %}
-                 <div class="col-md-4 col-sm-4">
-                <div class="point-center">
-                    <button type="submit" class="btn-default" >
-                       Connected
-                    </button>
-                </div>
-            </div>
-            {% endif %}
             <div class="col-md-4 col-sm-4">
                     <div class="dropdown">
                         <div class="point-center">
@@ -65,6 +46,9 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{% url 'signin' %}">BigQuery</a>
                                 <a class="dropdown-item" href="{% url 'uploadcsv' %}">Upload CSV</a>
+                                {% if connected == True %}
+                                  <a class="dropdown-item" href={% url 'logout' %}>Logout</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -79,7 +63,7 @@
                     <ul class="list-group">
                         <a id="code" href="#" class="list-group-item active">Coding Area </a>
                         <a class="list-group-item" href="{% url 'charting' %}">Charting Area</a>
-                        <a id="report" href="#sec4-sql" class="list-group-item">Reporting Area</a>
+                        <a id="report" href="{% url 'staging' %}" class="list-group-item">Reporting Area</a>
                     </ul>
                 </div>
             </div>
@@ -182,8 +166,9 @@
     </section>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" type="text/css" href='{% static "jquery-ui-1.12.1.min.css"%}'/>
+    <script src='{% static "jquery-3.2.1.min.js" %}'></script>
+    <script src='{% static "jquery-ui-1.12.1.min.js" %}'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>

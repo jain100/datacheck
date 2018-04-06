@@ -12,6 +12,7 @@ import pandas as pd
 import json
 from bs4 import BeautifulSoup
 import datetime
+from django.views.decorators.csrf import csrf_exempt
 
 
 client_dict={} #client dictionary for storing client objects
@@ -78,11 +79,16 @@ def root(request):
         for i in range(0,len(data_rows[0])-1):
             all_results[i][1],temp = (list(t) for t in zip(*sorted(zip(all_results[i][1],time),key=takeSecond)))
             all_results[i][2],temp = (list(t) for t in zip(*sorted(zip(all_results[i][2],time),key=takeSecond)))
+        request.session['all_results'] = all_results
         return render(request, 'index.html',{'results': all_results, 'connected':True})
 
     elif request.session.has_key('client') and request.method == 'GET': #AFTER SIGNING IN WHEN USER IS FIRST DIRECTED TO ROOT
-        print(request.session.get('client') , 'or empty')
-        return render(request,'index.html',{'connected':True})#TO SHOW THE CONNECTED BUTTON ON TEMPLATE
+        all_results=request.session.get('all_results', 'null')
+        if all_results != 'null':
+            return render(request, 'index.html',{'results': all_results, 'connected':True})
+        else:
+            return render(request, 'index.html',{'connected':True})
+    #TO SHOW THE CONNECTED BUTTON ON TEMPLATE
     else:
         return render(request, 'index.html',{'connected':False})# WHEN USER FIRST TIME VISIT THE PAGE
 
@@ -213,6 +219,22 @@ def docaccess(request):
 
 def saveChartingGraph(request):
     if request.method == 'POST':
+        savedGraphs = SavedGraph.objects.all()
+        for graph in savedGraphs:
+            if(graph.graphDataset == request.POST['chartDataset'] and
+            graph.graphType == request.POST['chartType'] and
+            graph.graphXAxisVar == request.POST['chartXAxisVar'] and
+            graph.graphYAxisVar == request.POST['chartYAxisVar'] and
+            graph.graphOp == request.POST['chartOp'] and
+            graph.graphHist == request.POST['chartHist']):
+                graph.graphTitle = request.POST['chartTitleSave']
+                graph.save()
+                graph.graphXAxisLabel = request.POST['chartXAxisLabel']
+                graph.save()
+                graph.graphYAxisLabel = request.POST['chartYAxisLabel']
+                graph.save()
+                return redirect('charting')
+
         newGraph = SavedGraph(graphDataset=request.POST['chartDataset'],
                                 graphType=request.POST['chartType'],
                                 graphTitle=request.POST['chartTitleSave'],
@@ -221,7 +243,9 @@ def saveChartingGraph(request):
                                 graphXAxisVar=request.POST['chartXAxisVar'],
                                 graphYAxisVar=request.POST['chartYAxisVar'],
                                 graphOp=request.POST['chartOp'],
-                                graphHist=request.POST['chartHist'],)
+                                graphHist=request.POST['chartHist'],
+                                graphHeight="800",
+                                graphWidth="900",)
         newGraph.save()
     return redirect('charting')
 
@@ -233,5 +257,20 @@ def deleteChartingGraph(request):
             if(i== int(request.POST['savedChartIndex'])):
                 print(n)
                 n.delete()
+            i+=1
+    return redirect('staging')
+
+
+@csrf_exempt
+def saveGraphStateStaging(request):
+    if request.method == 'POST':
+        newGraph = SavedGraph.objects.all()
+        i=0
+        arr = request.POST['savedGraphAttributes'].split(",")
+        for n in newGraph:
+            n.graphWidth = arr[i].split(" ")[0]
+            n.save()
+            n.graphHeight = arr[i].split(" ")[1]
+            n.save()
             i+=1
     return redirect('staging')
