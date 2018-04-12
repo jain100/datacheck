@@ -158,7 +158,7 @@
                                   {% csrf_token %}
                                   <label for="url"></label>
                                   <input id="url" type="hidden" name="url" value="{{ document.docfile.name }}">
-                                  <input class="file_list_item" type="submit" value="{{ document.docfile.name }}">
+                                  <button class="file_list_item" type="button" onclick="changeFileSubmit(event)">{{ document.docfile.name }}</button>
                                 </form>
                               {% endfor %}
                             {% endif %}
@@ -301,6 +301,41 @@
 
     <script type="text/javascript">
 
+        function changeFileSubmit(event){
+            sessionStorage.setItem("barxAxisLabel","");
+            sessionStorage.setItem("baryAxisLabel","");
+            sessionStorage.setItem("barchartTitle","");
+
+            sessionStorage.setItem("histxAxisLabel","");
+            sessionStorage.setItem("histyAxisLabel","");
+            sessionStorage.setItem("histchartTitle","");
+
+            sessionStorage.setItem("piechartTitle","");
+
+            sessionStorage.setItem("linexAxisLabel","");
+            sessionStorage.setItem("lineyAxisLabel","");
+            sessionStorage.setItem("linechartTitle","");
+
+            sessionStorage.setItem("barXVar","");
+            sessionStorage.setItem("barYVar","");
+            sessionStorage.setItem("barOp","");
+
+            sessionStorage.setItem("histXVar","");
+            sessionStorage.setItem("globalHistBin","");
+
+            sessionStorage.setItem("pieXVar","");
+            sessionStorage.setItem("pieYVar","");
+            sessionStorage.setItem("pieOp","");
+
+            sessionStorage.setItem("lineXVar","");
+            sessionStorage.setItem("lineYVar","");
+            sessionStorage.setItem("lineOp","");
+            
+
+            sessionStorage.setItem("file_changing_process","true");
+            event.target.parentNode.submit();
+        }
+
         function changeLabelsOptionSelected(event){
             $('.modal2Options').css("display", "block");
             $('.modal1Options').css("display", "none");
@@ -382,6 +417,10 @@
     var lineOp = sessionStorage.getItem("lineOp");
 
     window.onunload = function() {
+        if (sessionStorage.getItem("file_changing_process") == "true"){
+            sessionStorage.setItem("file_changing_process","false");
+            return;
+        }
         sessionStorage.setItem("barxAxisLabel",barxAxisLabel);
         sessionStorage.setItem("baryAxisLabel",baryAxisLabel);
         sessionStorage.setItem("barchartTitle",barchartTitle);
@@ -699,6 +738,10 @@
             var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
             colorScale.domain(data.map(function (d){ return d["key"]; }));
 
+            var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
+            maxXAxisLabelWidth *= dataNew.length;
+
 
             svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -736,10 +779,26 @@
                 .text(yAxisLabel);
 
         //adding x axis to the bottom of chart
-            svg.append("g")
+
+
+            if(maxXAxisLabelWidth > 100){
+                svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .call(xAxis)
+                .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", 9)
+                    .attr("dy", ".35em")
+                    .attr("transform", "rotate(90)")
+                    .style("text-anchor", "start");
+            }else{
+                svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
                 .call(xAxis);
+            }
+
 
             svg.append("text")             
               .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
@@ -918,6 +977,10 @@
 
             yScale.domain([0, maxY]).nice();
 
+            var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
+            maxXAxisLabelWidth *= dataNew.length;
+
 
             tempMax = 0;
 
@@ -957,11 +1020,23 @@
         var yAxis = d3.axisLeft(yScale);
 
 
-              svg.append("g")
-                  .attr("class", "x axis")
-                .attr("transform", "translate(" + margin.left + "," + height + ")")
-                  .call(xAxis);
-
+              if(maxXAxisLabelWidth > 100){
+                svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .call(xAxis)
+                .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", 9)
+                    .attr("dy", ".35em")
+                    .attr("transform", "rotate(90)")
+                    .style("text-anchor", "start");
+            }else{
+                svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .call(xAxis);
+            }
 
                 svg.append("text")             
               .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 30) + ")")
@@ -973,6 +1048,8 @@
               .attr("class", "y axis")
             .attr("transform", "translate(" + margin.left + "," + (margin.top + margin.bottom) + ")")
                   .call(yAxis);
+
+
 
                 svg.append("text")
                 .attr("transform", "rotate(-90)")
@@ -1301,20 +1378,22 @@
             .attr("height", 100)
             .attr("width", 100);
 
+            var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
           legend.selectAll('g').data(newData)
               .enter()
               .append('g')
               .each(function(d, i) {
                 var gg = d3.select(this);
                 gg.append("rect")
-                  .attr("x", width - 50)
+                  .attr("x", width - maxXAxisLabelWidth*25)
                   .attr("y", i*25)
                   .attr("width", 10)
                   .attr("height", 10)
                   .style("fill", colorScale(d.data.key));
 
                 gg.append("text")
-                  .attr("x", width - 35)
+                  .attr("x", width - maxXAxisLabelWidth*18)
                   .attr("y", i * 25 + 10)
                   .attr("height",30)
                   .attr("width",100)
@@ -1590,6 +1669,10 @@
 
             xScale.domain(dataNew.map(function(d){ return d["key"]; }));
 
+            var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
+            maxXAxisLabelWidth *= dataNew.length;
+
             svg.select('.y_axis').remove();
 
             svg.append("g")
@@ -1606,10 +1689,23 @@
                 .text(yAxisLabel);
 
         //adding x axis to the bottom of chart
-            svg.append("g")
+            if(maxXAxisLabelWidth > 100){
+                svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .call(xAxis)
+                .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", 9)
+                    .attr("dy", ".35em")
+                    .attr("transform", "rotate(90)")
+                    .style("text-anchor", "start");
+            }else{
+                svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
                 .call(xAxis);
+            }
 
             svg.append("text")             
               .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")

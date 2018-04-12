@@ -382,6 +382,10 @@
 
                     xScale.domain(dataNew.map(function(d){ return d["key"]; }));
 
+                    var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
+                    maxXAxisLabelWidth *= dataNew.length;
+
                     var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
                     colorScale.domain(data.map(function (d){ return d["key"]; }));
 
@@ -421,10 +425,24 @@
                         .text(yAxisLabel);
 
                 //adding x axis to the bottom of chart
-                    svg.append("g")
+                    if(maxXAxisLabelWidth > 100){
+                        svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                        .call(xAxis)
+                        .selectAll("text")
+                            .attr("y", 0)
+                            .attr("x", 9)
+                            .attr("dy", ".35em")
+                            .attr("transform", "rotate(90)")
+                            .style("text-anchor", "start");
+                    }else{
+                        svg.append("g")
                         .attr("class", "x axis")
                         .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
                         .call(xAxis);
+                    }
+
 
                     svg.append("text")             
                       .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
@@ -522,6 +540,10 @@
 
         yScale.domain([0, maxY]).nice();
 
+        var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
+        maxXAxisLabelWidth *= dataNew.length;
+
 
         tempMax = 0;
 
@@ -561,10 +583,24 @@
             var yAxis = d3.axisLeft(yScale);
 
 
-      svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(" + margin.left + "," + height + ")")
-        .call(xAxis);
+      if(maxXAxisLabelWidth > 100){
+            svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+            .call(xAxis)
+            .selectAll("text")
+                .attr("y", 0)
+                .attr("x", 9)
+                .attr("dy", ".35em")
+                .attr("transform", "rotate(90)")
+                .style("text-anchor", "start");
+        }else{
+            svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+            .call(xAxis);
+        }
+
 
 
         svg.append("text")             
@@ -767,20 +803,22 @@
             .attr("height", 100)
             .attr("width", 100);
 
+        var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
           legend.selectAll('g').data(newData)
               .enter()
               .append('g')
               .each(function(d, i) {
                 var gg = d3.select(this);
                 gg.append("rect")
-                  .attr("x", width - 50)
+                  .attr("x", width - maxXAxisLabelWidth*25)
                   .attr("y", i*25)
                   .attr("width", 10)
                   .attr("height", 10)
                   .style("fill", colorScale(d.data.key));
 
                 gg.append("text")
-                  .attr("x", width - 35)
+                  .attr("x", width - maxXAxisLabelWidth*18)
                   .attr("y", i * 25 + 10)
                   .attr("height",30)
                   .attr("width",100)
@@ -895,6 +933,10 @@
 
             xScale.domain(dataNew.map(function(d){ return d["key"]; }));
 
+            var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
+
+            maxXAxisLabelWidth *= dataNew.length;
+
             svg.select('.y_axis').remove();
 
             svg.append("g")
@@ -911,10 +953,24 @@
                 .text(yAxisLabel);
 
         //adding x axis to the bottom of chart
-            svg.append("g")
+           if(maxXAxisLabelWidth > 100){
+                svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .call(xAxis)
+                .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", 9)
+                    .attr("dy", ".35em")
+                    .attr("transform", "rotate(90)")
+                    .style("text-anchor", "start");
+            }else{
+                svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
                 .call(xAxis);
+            }
+
 
             svg.append("text")             
               .attr("transform","translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
