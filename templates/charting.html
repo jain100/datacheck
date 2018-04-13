@@ -304,7 +304,7 @@
       <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Please enter a column for group by</h4>
+        <h4 class="modal-title">Please select fields for Y axis.</h4>
       </div>
       <div class="modal-body">
          <form id="Gc">
@@ -690,7 +690,7 @@
                     }
                 }
             }
-			var typeArray=["Vertical","Horizontel","Grouped"];
+			var typeArray=["Vertical","Horizontal","Grouped"];
 			d3.select('#chart_type_list')
                     .append('h6')
                     .style('margin-top', '30px')
@@ -876,7 +876,7 @@
           }
 		  
 		  
-		  if(GType==="Horizontel")
+		  if(GType==="Horizontal")
             {
 		
 			xScale = d3.scaleLinear()
