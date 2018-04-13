@@ -1307,8 +1307,22 @@
             }
 
             map.sort(function(x, y){
-              return d3.ascending(+x["key"], +y["key"]);
+              return d3.descending(+x["value"], +y["value"]);
             })
+
+
+            if(map.length > 6) {
+                var othersAggt = 0;
+                newMap=[];
+                for(iii=0; iii<6; iii++){
+                    newMap.push(map[iii]);
+                }
+                for(iii=6; iii<map.length; iii++){
+                    othersAggt += map[iii]['value'];
+                }
+                newMap.push({key: "Others", value: othersAggt});
+                map = newMap;
+            }
 
             var arc = d3.arc()
                 .outerRadius(radius - 10)
@@ -1378,22 +1392,20 @@
             .attr("height", 100)
             .attr("width", 100);
 
-            var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
-
           legend.selectAll('g').data(newData)
               .enter()
               .append('g')
               .each(function(d, i) {
                 var gg = d3.select(this);
                 gg.append("rect")
-                  .attr("x", width - maxXAxisLabelWidth*25)
+                  .attr("x", width - 140)
                   .attr("y", i*25)
                   .attr("width", 10)
                   .attr("height", 10)
                   .style("fill", colorScale(d.data.key));
 
                 gg.append("text")
-                  .attr("x", width - maxXAxisLabelWidth*18)
+                  .attr("x", width - 125)
                   .attr("y", i * 25 + 10)
                   .attr("height",30)
                   .attr("width",100)
@@ -1406,13 +1418,13 @@
             .style("display", "none");
               
             tooltip.append("rect")
-            .attr("width", 60)
+            .attr("width", 100)
             .attr("height", 20)
             .attr("fill", "white")
             .style("opacity", 0.5);
 
             tooltip.append("text")
-            .attr("x", 30)
+            .attr("x", 50)
             .attr("dy", "1.2em")
             .style("text-anchor", "middle")
             .attr("font-size", "12px")
