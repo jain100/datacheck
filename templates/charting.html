@@ -979,7 +979,7 @@
 
             var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
 
-            maxXAxisLabelWidth *= dataNew.length;
+            maxXAxisLabelWidth *= bins.length;
 
 
             tempMax = 0;
@@ -1016,14 +1016,14 @@
               tooltip.select("text").text(d.length);
             });
 
-  var xAxis = d3.axisBottom(xScale);
+        var xAxis = d3.axisBottom(xScale);
         var yAxis = d3.axisLeft(yScale);
 
 
               if(maxXAxisLabelWidth > 100){
                 svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .attr("transform", "translate(" + margin.left + "," + height + ")")
                 .call(xAxis)
                 .selectAll("text")
                     .attr("y", 0)
@@ -1034,7 +1034,7 @@
             }else{
                 svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+                .attr("transform", "translate(" + margin.left + "," + height + ")")
                 .call(xAxis);
             }
 

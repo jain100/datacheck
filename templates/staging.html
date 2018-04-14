@@ -542,7 +542,7 @@
 
         var maxXAxisLabelWidth = d3.max(data, function(d){ return d[xAxisVar].length; });
 
-        maxXAxisLabelWidth *= dataNew.length;
+        maxXAxisLabelWidth *= bins.length;
 
 
         tempMax = 0;
@@ -586,7 +586,7 @@
       if(maxXAxisLabelWidth > 100){
             svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+            .attr("transform", "translate(" + margin.left + "," + height + ")")
             .call(xAxis)
             .selectAll("text")
                 .attr("y", 0)
@@ -597,7 +597,7 @@
         }else{
             svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(" + margin.left + "," + (height - margin.bottom) + ")")
+            .attr("transform", "translate(" + margin.left + "," + height + ")")
             .call(xAxis);
         }
 
@@ -730,7 +730,7 @@
             }
 
             map.sort(function(x, y){
-              return d3.ascending(+x["key"], +y["key"]);
+              return d3.descending(+x["value"], +y["value"]);
             })
 
 
