@@ -241,7 +241,8 @@
                     <div class="chart_option" id="bar_option" onclick="setGraphType('bar')">Bar Graph</div>
                     <div class="chart_option" id="histogram_option" onclick="setGraphType('histogram')">Histogram</div>
                     <div class="chart_option" id="pie_option" onclick="setGraphType('pie')">Pie Chart</div>
-                    <div class="chart_option" id="line_option" onclick="setGraphType('line')">Line Graph</div>
+                    <div class ="chart_option" id="line_option" onclick="setGraphType('line')">Line Graph</div>
+					<div class ="chart_option" id="heat_map_option" onclick="setGraphType('heat')">Heat Map</div>
                 </div>
 
                 <div class="main2" id="svgcontainer">
@@ -430,6 +431,17 @@
         var lineYVar = [];
     }
     var lineOp = sessionStorage.getItem("lineOp");
+	
+	
+	var heatXVar = sessionStorage.getItem("heatXVar");
+	
+	if(sessionStorage.getItem("heatYVar")){
+        var heatYVar = (sessionStorage.getItem("heatYVar")).split(",");
+    }else{
+        var heatYVar = [];
+    }
+	
+	var heatOp =  sessionStorage.getItem("heatOp");
 
     window.onunload = function() {
         sessionStorage.setItem("barxAxisLabel",barxAxisLabel);
@@ -522,6 +534,7 @@
         document.getElementById('histogram_option').style.backgroundColor= "#eaeaea";
         document.getElementById('pie_option').style.backgroundColor= "#eaeaea";
         document.getElementById('line_option').style.backgroundColor= "#eaeaea";
+		 document.getElementById('heat_map_option').style.backgroundColor= "#eaeaea";
 
 
         d3.selectAll("svg").remove();
@@ -1222,7 +1235,8 @@ console.log(Object.keys(datavalues)[0]);
         document.getElementById('histogram_option').style.backgroundColor= "#cccccc";
         document.getElementById('pie_option').style.backgroundColor= "#eaeaea";
         document.getElementById('line_option').style.backgroundColor= "#eaeaea";
-
+		
+ document.getElementById('heat_map_option').style.backgroundColor= "#eaeaea";
 
         d3.select("svg").remove();
         d3.selectAll("select").remove();
@@ -1456,6 +1470,7 @@ console.log(Object.keys(datavalues)[0]);
         document.getElementById('histogram_option').style.backgroundColor= "#eaeaea";
         document.getElementById('pie_option').style.backgroundColor= "#cccccc";
         document.getElementById('line_option').style.backgroundColor= "#eaeaea";
+		 document.getElementById('heat_map_option').style.backgroundColor= "#eaeaea";
 
         d3.select("svg").remove();
         d3.selectAll("select").remove();
@@ -1786,6 +1801,7 @@ console.log(Object.keys(datavalues)[0]);
         document.getElementById('histogram_option').style.backgroundColor= "#eaeaea";
         document.getElementById('pie_option').style.backgroundColor= "#eaeaea";
         document.getElementById('line_option').style.backgroundColor= "#cccccc";
+		 document.getElementById('heat_map_option').style.backgroundColor= "#eaeaea";
 
         d3.selectAll("svg").remove();
         d3.selectAll("select").remove();
@@ -1916,6 +1932,7 @@ console.log(Object.keys(datavalues)[0]);
                 if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
                     changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
                 }
+				
             });
                       
              d3.select('#chart_operations_list')
@@ -2213,6 +2230,189 @@ console.log(Object.keys(datavalues)[0]);
 
 }
     }
+	
+	else if(x==="heat")
+	
+	{
+	  
+	    document.getElementById('histBins').style.display = "none";
+        document.getElementById('change_bins_button').style.display = "none";
+        document.getElementById('bar_option').style.backgroundColor="#eaeaea"; 
+        document.getElementById('histogram_option').style.backgroundColor= "#eaeaea";
+        document.getElementById('pie_option').style.backgroundColor= "#eaeaea";
+        document.getElementById('line_option').style.backgroundColor= "#eaeaea";
+		 document.getElementById('heat_map_option').style.backgroundColor= "#cccccc";
+		 
+		 
+        d3.selectAll("svg").remove();
+        d3.selectAll("select").remove();
+        d3.selectAll("br").remove();
+        d3.selectAll("input[type='radio']").remove();
+        d3.selectAll("input[type='checkbox']").remove();
+        d3.selectAll("h6").remove();
+        d3.selectAll("label").remove();
+        graphType = x;
+		
+		
+		
+		 
+        var margin = {top:0, right:0, bottom:20, left:50},
+            width  = 900,
+            height = 550;
+
+        var svg = d3.select("#svgcontainer")
+            .append("svg:svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("viewBox", "0 0 " + width + " " + height);
+
+
+        var yScale;
+
+        var xScale;
+
+        var xAxis;
+        var yAxis;
+  
+
+        var xAxisVar = heatXVar;
+        var yAxisVar = heatYVar.slice();
+        var operation = heatOp;
+		
+		 d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
+		 
+		  var dataValues = d3.values(data)[0];
+
+
+              var sLabel = d3.select('#change_label_button')
+                        .text("Change Label");
+
+                
+                d3.select('#chart_variables_list').append('br');
+
+               d3.select('#chart_variables_list_x')
+                    .append('h6')
+                    .text('X-Axis');
+
+                d3.select('#chart_variables_list_y')
+                    .append('h6')
+                    .text('Y-Axis');
+				
+				 for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                 d3.select('#chart_variables_list_x')
+                    .append('input')
+                        .attr('type','radio')
+                        .attr('name', 'checkbox_options_x')
+                        .attr("id",'xOption'+i)
+                        .attr('class', 'checkbox_options_x')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_x')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_x')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_x')
+                    .append('br');
+
+              }
+			  
+			  d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
+                xAxisVar = this.value;
+                heatXVar = xAxisVar;
+              
+            });
+
+
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                if(document.getElementById('xOption'+i).value == heatXVar){
+                    d3.select('#xOption'+i).property('checked', true);
+                    
+                }
+            }
+
+
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                 d3.select('#chart_variables_list_y')
+                    .append('input')
+                        .attr('type','checkbox')
+                        .attr('name', 'checkbox_options_y')
+                        .attr("id",'yOption'+i)
+                        .attr('class', 'checkbox_options_y')
+                        .property('value', Object.keys(dataValues)[i]);
+
+                 d3.select('#chart_variables_list_y')
+                    .append('label')
+                        .text(Object.keys(dataValues)[i])
+                        .attr('class', 'checkbox_options_label_y')
+                        .style('display', 'inline');
+                 d3.select('#chart_variables_list_y')
+                    .append('br');
+
+              }
+
+            d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
+                if(this.checked){
+                    yAxisVar.push(this.value);
+                    heatYVar.push(this.value);
+                }else{
+                    var index = yAxisVar.indexOf(this.value);
+                    if (index !== -1){
+                        yAxisVar.splice(index, 1);
+                    }
+                    var index2 = heatYVar.indexOf(this.value);
+                    if (index2 !== -1){
+                        heatYVar.splice(index, 1);
+                    }
+                }
+				 
+              
+            });
+			
+			
+			d3.select('#chart_operations_list')
+                    .append('h6')
+                    .style('margin-top', '30px')
+                    .text('Aggregation Function');
+					
+					var opArray = ['Sum', 'Average', 'Max', 'Min'];
+
+            for(var i=0; i<4; i++){
+                d3.select('#chart_operations_list').append('input')
+                    .attr('type','radio')
+                    .attr('name', 'checkbox_operations')
+                    .attr('class', 'checkbox_operations')
+                    .attr('id','heatOpOption'+i)
+                    .property('value',opArray[i]);
+                d3.select('#chart_operations_list')
+                        .append('label')
+                            .text(opArray[i])
+                            .attr('class', 'checkbox_operations_label')
+                            .style('display', 'inline');
+                 d3.select('#chart_operations_list').append('br'); 
+            }
+
+
+            d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
+                operation = this.value;
+                heatOp = operation;
+                
+            });
+
+            for(var i=0; i<4; i++ ){
+                if(document.getElementById('lineOpOption'+i).value == lineOp){
+                    d3.select('#lineOpOption'+i).property('checked', true);
+                    
+                }
+            }
+					
+		 
+		 });
+		
+		
+	
+	}
 }
 
 </script>
