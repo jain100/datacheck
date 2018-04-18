@@ -376,6 +376,20 @@
     if(sessionStorage.getItem("barchartTitle")){
         barchartTitle = sessionStorage.getItem("barchartTitle");
     }
+	
+	var heatxAxisLabel = "";
+    if(sessionStorage.getItem("heatxAxisLabel")){
+        heatxAxisLabel = sessionStorage.getItem("heatxAxisLabel");
+    }
+    var heatyAxisLabel = "";
+    if(sessionStorage.getItem("heatyAxisLabel")){
+        heatyAxisLabel = sessionStorage.getItem("heatyAxisLabel");
+    }
+    var heatchartTitle = "";
+    if(sessionStorage.getItem("heatchartTitle")){
+        heatchartTitle = sessionStorage.getItem("heatchartTitle");
+    }
+
 
     var histxAxisLabel = "";
     if(sessionStorage.getItem("histxAxisLabel")){
@@ -2255,8 +2269,7 @@ console.log(Object.keys(datavalues)[0]);
 		
 		
 		
-		 
-        var margin = {top:0, right:0, bottom:20, left:50},
+	        var margin = {top:0, right:0, bottom:20, left:50},
             width  = 900,
             height = 550;
 
@@ -2264,15 +2277,15 @@ console.log(Object.keys(datavalues)[0]);
             .append("svg:svg")
             .attr("width", "100%")
             .attr("height", "100%")
-            .attr("viewBox", "0 0 " + width + " " + height);
-
+            .attr("viewBox", "0 0 " + width + " " + height); 
 
         var yScale;
 
         var xScale;
 
-        var xAxis;
-        var yAxis;
+       
+  
+
   
 
         var xAxisVar = heatXVar;
@@ -2320,6 +2333,8 @@ console.log(Object.keys(datavalues)[0]);
 			  d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
                 xAxisVar = this.value;
                 heatXVar = xAxisVar;
+				if(heatXVar!=null && heatYVar!=null && heatOp!=null)
+                 changeHeat(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
               
             });
 
@@ -2367,7 +2382,8 @@ console.log(Object.keys(datavalues)[0]);
                     }
                 }
 				 
-              
+              if(heatXVar!=null && heatYVar!=null && heatOp!=null)
+                 changeHeat(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
 			
 			
@@ -2385,7 +2401,7 @@ console.log(Object.keys(datavalues)[0]);
                     .attr('class', 'checkbox_operations')
                     .attr('id','heatOpOption'+i)
                     .property('value',opArray[i]);
-                d3.select('#chart_operations_list')
+					d3.select('#chart_operations_list')
                         .append('label')
                             .text(opArray[i])
                             .attr('class', 'checkbox_operations_label')
@@ -2397,19 +2413,141 @@ console.log(Object.keys(datavalues)[0]);
             d3.selectAll(("input[name='checkbox_operations']")).on("change", function(){
                 operation = this.value;
                 heatOp = operation;
-                
+				if(heatXVar!=null && heatYVar!=null && heatOp!=null)
+                 changeHeat(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle);
             });
 
-            for(var i=0; i<4; i++ ){
-                if(document.getElementById('lineOpOption'+i).value == lineOp){
-                    d3.select('#lineOpOption'+i).property('checked', true);
-                    
-                }
-            }
-					
+            
 		 
 		 });
 		
+		function changeHeat(data, xAxisVar, yAxisVar, operation, xAxisLabel, yAxisLabel, chartTitle)
+		{
+		d3.selectAll("svg > *").remove();
+
+		
+						 var nested_data;
+				 
+				if(operation=="Sum") 
+				{
+				
+				nested_data = d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+				
+				var values = {};
+				
+				yAxisVar.forEach(function(col){
+				values[col]=d3.sum(d,function(g) {return +g[col];});
+				
+				});
+				
+                return values;
+				
+				
+				
+                }).entries(data);
+				
+				}
+				if(operation=="Average") 
+				{
+				
+				nested_data = d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+				
+				var values = {};
+				
+				yAxisVar.forEach(function(col){
+				values[col]=d3.mean(d,function(g) {return +g[col];});
+				
+				});
+				
+                return values;
+				
+				
+				
+                }).entries(data);
+				
+				}
+				if(operation=="Max") 
+				{
+				
+				nested_data = d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+				
+				var values = {};
+				
+				yAxisVar.forEach(function(col){
+				values[col]=d3.max(d,function(g) {return +g[col];});
+				
+				});
+				
+                return values;
+				
+				
+				
+                }).entries(data);
+				
+				}
+				if(operation=="Min") 
+				{
+				
+				nested_data = d3.nest()
+                .key(function(d) {return d[xAxisVar];})
+                .rollup(function(d) {
+				
+				var values = {};
+				
+				yAxisVar.forEach(function(col){
+				values[col]=d3.min(d,function(g) {return +g[col];});
+				
+				});
+				
+                return values;
+				
+				
+				
+                }).entries(data);
+				
+				}
+				
+				
+		console.log(nested_data);
+		var itemsize = 25;
+		
+		var yvalues = nested_data.map(function(d){return d["key"]});
+		
+		var xvalues = yAxisVar.map(function(d){return d});
+		
+		
+		yScale = d3.scaleBand()
+            .rangeRound([height-margin.top-margin.bottom , 0])
+            .paddingInner(0.1);
+			
+		yScale.domain(yvalues);
+		
+		xScale = d3.scaleBand()
+			.rangeRound([0, width - margin.right - margin.left])
+            .paddingInner(0.1);
+			
+		xScale.domain(xvalues);
+			
+		var xAxis = d3.axisTop(xScale);
+        var yAxis = d3.axisLeft(yScale);
+		
+		svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .call(yAxis)
+		
+		 svg.append("g")
+                .attr("class", "x axis")
+               .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .call(xAxis);
+		
+		}
 		
 	
 	}
