@@ -1153,7 +1153,7 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .call(yAxis);
 			
-		   svg.append("g")
+		     svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .selectAll("g")
             .data(nested_data)
@@ -2269,7 +2269,7 @@ console.log(Object.keys(datavalues)[0]);
 		
 		
 		
-	        var margin = {top:0, right:0, bottom:20, left:50},
+	        var margin = {top:0, right:0, bottom:40, left:50},
             width  = 900,
             height = 550;
 
@@ -2523,16 +2523,31 @@ console.log(Object.keys(datavalues)[0]);
 		
 		
 		yScale = d3.scaleBand()
-            .rangeRound([height-margin.top-margin.bottom , 0])
-            .paddingInner(0.1);
+            .rangeRound([height-margin.top-margin.bottom , 0]);
+           
 			
 		yScale.domain(yvalues);
 		
 		xScale = d3.scaleBand()
-			.rangeRound([0, width - margin.right - margin.left])
-            .paddingInner(0.1);
+			.rangeRound([0, width - margin.right - margin.left]);
+            
+			
+		    var ymax;
+			var maxArray=[];
+			
+			yAxisVar.forEach(function(col){
+			
+			maxArray.push(d3.max(nested_data,function(d){return d["value"][col]}));
+			});
+			
+			
+			
+			ymax=d3.max(maxArray,function(d){return d});	
 			
 		xScale.domain(xvalues);
+		
+		   var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+            colorScale.domain([0,ymax]);
 			
 		var xAxis = d3.axisTop(xScale);
         var yAxis = d3.axisLeft(yScale);
@@ -2546,6 +2561,26 @@ console.log(Object.keys(datavalues)[0]);
                 .attr("class", "x axis")
                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .call(xAxis);
+				
+			 svg.append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .selectAll("g")
+            .data(nested_data)
+            .enter()
+			.append("g")
+			.attr("transform", function(d) { return "translate(0," + yScale(d["key"])+")";  })
+			.selectAll(".cells")
+			.data(function(d){return xvalues.map(function(key) { return {key: key, value: d["value"][key]}; });})
+			.enter()
+			.append("rect")
+			.attr("class", "cells")
+            .attr("x", function(d){ return xScale(d["key"]); })
+            .attr("y", function(d){ return yScale(d["value"]); })
+            .attr("fill", function (d){ return colorScale(d["value"]); })
+            .attr("height", yScale.bandwidth())
+			.attr("width",xScale.bandwidth());
+		
+		
 		
 		}
 		
