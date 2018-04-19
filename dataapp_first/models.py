@@ -21,3 +21,6 @@ class SavedGraph(models.Model):
 
     graphHeight = models.CharField(max_length=255,)
     graphWidth = models.CharField(max_length=255,)
+
+    graphLeft = models.CharField(max_length=255,)
+    graphTop = models.CharField(max_length=255,)
