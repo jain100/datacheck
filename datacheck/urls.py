@@ -30,4 +30,5 @@ urlpatterns = [
     re_path('saveChartingGraph$', views.saveChartingGraph,name='saveChartingGraph'),
     re_path('deleteChartingGraph$', views.deleteChartingGraph,name='deleteChartingGraph'),
     re_path('saveGraphStateStaging$', views.saveGraphStateStaging,name='saveGraphStateStaging'),
+    re_path('saveGraphPositionStaging$', views.saveGraphPositionStaging,name='saveGraphPositionStaging'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

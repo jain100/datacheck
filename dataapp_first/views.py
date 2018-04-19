@@ -220,7 +220,14 @@ def docaccess(request):
 def saveChartingGraph(request):
     if request.method == 'POST':
         savedGraphs = SavedGraph.objects.all()
+        graphTopPos = 0
+        graphLeftPos = 0
+        lastGraphHeight = 0
+        lastGraphLeft = 0
         for graph in savedGraphs:
+            graphTopPos = float(graph.graphTop)
+            lastGraphLeft = float(graph.graphLeft)
+            lastGraphHeight = float(graph.graphHeight)
             if(graph.graphDataset == request.POST['chartDataset'] and
             graph.graphType == request.POST['chartType'] and
             graph.graphXAxisVar == request.POST['chartXAxisVar'] and
@@ -235,6 +242,14 @@ def saveChartingGraph(request):
                 graph.save()
                 return redirect('charting')
 
+        if(int(SavedGraph.objects.count()) %2 == 1 and lastGraphLeft <= 100):
+            graphLeftPos = 500
+        elif(int(SavedGraph.objects.count()) == 0):
+            graphTopPos += lastGraphHeight
+        else:
+            graphTopPos += lastGraphHeight
+            graphTopPos += 30
+
         newGraph = SavedGraph(graphDataset=request.POST['chartDataset'],
                                 graphType=request.POST['chartType'],
                                 graphTitle=request.POST['chartTitleSave'],
@@ -244,8 +259,10 @@ def saveChartingGraph(request):
                                 graphYAxisVar=request.POST['chartYAxisVar'],
                                 graphOp=request.POST['chartOp'],
                                 graphHist=request.POST['chartHist'],
-                                graphHeight="800",
-                                graphWidth="900",)
+                                graphHeight="400",
+                                graphWidth="450",
+                                graphLeft=str(graphLeftPos),
+                                graphTop=str(graphTopPos),)
         newGraph.save()
     return redirect('charting')
 
@@ -268,9 +285,35 @@ def saveGraphStateStaging(request):
         i=0
         arr = request.POST['savedGraphAttributes'].split(",")
         for n in newGraph:
-            n.graphWidth = arr[i].split(" ")[0]
-            n.save()
-            n.graphHeight = arr[i].split(" ")[1]
-            n.save()
+            if(arr[i].split(" ")[0]):
+                n.graphWidth = arr[i].split(" ")[0]
+                n.save()
+            
+            if(arr[i].split(" ")[1]):
+                n.graphHeight = arr[i].split(" ")[1]
+                n.save()
+            
+            i+=1
+    return redirect('staging')
+
+
+@csrf_exempt
+def saveGraphPositionStaging(request):
+    if request.method == 'POST':
+        newGraph = SavedGraph.objects.all()
+        i=0
+        arr = request.POST['savedGraphPosition'].split(",")
+        index = request.POST['index']
+        print(index)
+        for n in newGraph:
+            if i==int(index):
+                if(arr[i].split(" ")[0]):
+                    n.graphLeft = str(float(arr[i].split(" ")[0])-190)
+                    n.save()
+            
+                if(arr[i].split(" ")[1]):
+                    n.graphTop = str(float(arr[i].split(" ")[1])-150)
+                    n.save()
+                print(arr[i].split(" ")[0] + " " + arr[i].split(" ")[1])
             i+=1
     return redirect('staging')

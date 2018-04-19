@@ -138,7 +138,7 @@
         }
     </style>
   </head>
-  <body onload="setGraphType('bar')">
+  <body>
      <form method="post" id="queryform" enctype="multipart/form-data">{% csrf_token %}</form>
     <section class="sec point" id="sec1">
         <div class="row">
@@ -497,6 +497,38 @@
     var working_dataset = "static/{{request.session.working_dataset}}";
     var graph_type = "";
 
+    var maxUniqueVar = "";
+    var secondMaxUniqueVar = "";
+    var maxUniqueVarCount=0;
+    var secondMaxUniqueVarCount=0;
+
+    $(document).ready(function(){
+        
+        d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
+            var dataValues = d3.values(data)[0];
+            for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                var newData = d3.nest()
+                    .key(function(d) {return d[Object.keys(dataValues)[i]];})
+                    .rollup(function(d) {
+                    return d.length;
+                    })
+                .entries(data);
+                if(newData.length > maxUniqueVarCount){
+                    secondMaxUniqueVar = maxUniqueVar;
+                    maxUniqueVar = Object.keys(dataValues)[i];
+                    secondMaxUniqueVarCount = maxUniqueVarCount;
+                    maxUniqueVarCount = newData.length;
+                }else if(newData.length > secondMaxUniqueVarCount){
+                    secondMaxUniqueVar = Object.keys(dataValues)[i];
+                    secondMaxUniqueVarCount = newData.length;
+                }
+            }
+            console.log(maxUniqueVar +" : " + maxUniqueVarCount);
+            console.log(secondMaxUniqueVar +" : " + secondMaxUniqueVarCount);
+            setGraphType('bar');
+        });
+    });
+
     function setGraphType(x){
 
         graph_type = x;
@@ -548,6 +580,20 @@
         var operation = barOp;
 
 
+        if (xAxisVar == "" || xAxisVar == "null" || xAxisVar == null){
+            xAxisVar = secondMaxUniqueVar;
+            barXVar = secondMaxUniqueVar;
+        }
+
+        if(yAxisVar == "" || yAxisVar == "null" || yAxisVar == null){
+            yAxisVar = maxUniqueVar;
+            barYVar = maxUniqueVar;
+        }
+
+        if(operation == "" || operation == "null" || operation == null){
+            operation = "Sum";
+            barOp = "Sum";
+        }
         d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
               var dataValues = d3.values(data)[0];
@@ -764,6 +810,21 @@
               tooltip.select("text").text(+d["value"].toFixed(3));
             });
 
+            if(xAxisLabel == ""){
+                xAxisLabel = secondMaxUniqueVar;
+                barxAxisLabel = secondMaxUniqueVar;
+                
+            }
+
+            if(yAxisLabel == ""){
+                yAxisLabel = maxUniqueVar;
+                baryAxisLabel = maxUniqueVar;
+            }
+
+            if(chartTitle == ""){
+                chartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+                barchartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+            }
 
             svg.append("g")
             .attr("class", "y axis")
@@ -876,7 +937,15 @@
   
 
         var xAxisVar = histXVar;
+        if (xAxisVar == "" || xAxisVar == "null" || xAxisVar == null){
+            xAxisVar = maxUniqueVar;
+            histXVar = maxUniqueVar;
+        }
         var binCount = globalHistBin;
+        if(binCount == "" || binCount == "null" || binCount == null){
+            binCount = "25";
+            globalHistBin = "25";
+        }
 
 
         d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
@@ -1020,6 +1089,23 @@
         var yAxis = d3.axisLeft(yScale);
 
 
+            if(xAxisLabel == ""){
+                xAxisLabel = maxUniqueVar;
+                histxAxisLabel = maxUniqueVar;
+                
+            }
+
+            if(yAxisLabel == ""){
+                yAxisLabel = "count(" + maxUniqueVar + ")";
+                histyAxisLabel = "count(" + maxUniqueVar + ")";
+            }
+
+            if(chartTitle == ""){
+                chartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+                histchartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+            }
+
+
               if(maxXAxisLabelWidth > 100){
                 svg.append("g")
                 .attr("class", "x axis")
@@ -1122,6 +1208,21 @@
         var xAxisVar = pieXVar;
         var yAxisVar= pieYVar;
         var operation=pieOp;
+
+        if (xAxisVar == "" || xAxisVar == "null" || xAxisVar == null){
+            xAxisVar = secondMaxUniqueVar;
+            pieXVar = secondMaxUniqueVar;
+        }
+
+        if(yAxisVar == "" || yAxisVar == "null" || yAxisVar == null){
+            yAxisVar = maxUniqueVar;
+            pieYVar = maxUniqueVar;
+        }
+
+        if(operation == "" || operation == "null" || operation == null){
+            operation = "Sum";
+            pieOp = "Sum";
+        }
 
         d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
 
@@ -1368,6 +1469,12 @@
                 });
 
 
+            if(chartTitle == ""){
+                chartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+                piechartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+            }
+
+
             g.append("text")
                 .attr("transform", function(d) {return "translate(" + (labelArc.centroid(d)[0] - 10) + "," + labelArc.centroid(d)[1] + ")"; })
                 .text(function(d) { return (((d.endAngle - d.startAngle)/(2*Math.PI)*100).toFixed(1) + "%" );})
@@ -1474,6 +1581,20 @@
         var yAxisVar = lineYVar.slice();
         var operation = lineOp;
 
+        if (xAxisVar == "" || xAxisVar == "null" || xAxisVar == null){
+            xAxisVar = secondMaxUniqueVar;
+            lineXVar = secondMaxUniqueVar;
+        }
+
+        if(!yAxisVar[0]){
+            yAxisVar.push(maxUniqueVar);
+            lineYVar.push(maxUniqueVar);
+        }
+
+        if(operation == "" || operation == "null" || operation == null){
+            operation = "Sum";
+            lineOp = "Sum";
+        }
 
 
         d3.csv(working_dataset+'?' + Math.floor(Math.random() * 1000), function(error, data){
@@ -1686,6 +1807,22 @@
             maxXAxisLabelWidth *= dataNew.length;
 
             svg.select('.y_axis').remove();
+
+            if(xAxisLabel == ""){
+                xAxisLabel = secondMaxUniqueVar;
+                linexAxisLabel = secondMaxUniqueVar;
+                
+            }
+
+            if(yAxisLabel == ""){
+                yAxisLabel = maxUniqueVar;
+                lineyAxisLabel = maxUniqueVar;
+            }
+
+            if(chartTitle == ""){
+                chartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+                linechartTitle = secondMaxUniqueVar + " vs " + maxUniqueVar;
+            }
 
             svg.append("g")
             .attr("class", "y_axis")

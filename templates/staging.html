@@ -177,7 +177,7 @@
             <div id="sec3-sql" class="col-md-8 col-sm-8">
                 {% if savedGraphs %}
                   {% for graph in savedGraphs %}
-                    <div class="main2 svgcontainer" style="margin-top: 50px;">
+                    <div class="main2 svgcontainer" style="margin-top: 50px; position: absolute !important;">
                         <form action="{% url 'deleteChartingGraph' %}"  
                             name="deleteChartingGraph" id="deleteChartingGraph" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
@@ -198,6 +198,8 @@
                         <input type="hidden" class="graphHist" value="{{ graph.graphHist }}" />
                         <input type="hidden" class="graphHeight" value="{{ graph.graphHeight }}" />
                         <input type="hidden" class="graphWidth" value="{{ graph.graphWidth }}" />
+                        <input type="hidden" class="graphLeft" value="{{ graph.graphLeft }}" />
+                        <input type="hidden" class="graphTop" value="{{ graph.graphTop }}" />
                     </div>
                   {% endfor %}
                 {% endif %}
@@ -230,10 +232,11 @@
 
 
         widthHeightArr = [];
-
+        leftTopArr = [];
 
 
         $(document).ready(function(){
+            //sessionStorage.clear();
 
             $('.svgcontainer').mouseover(function(){
                 $(this).find('#deleteChartingGraphButton').css('display', 'block');
@@ -244,7 +247,25 @@
             });
 
             $(function () {
-                $('.svgcontainer').draggable()
+                $('.svgcontainer').draggable({
+                    stop: function(event){
+                        var offset = $(this).offset();
+                        var xPos = offset.left;
+                        var yPos = offset.top;
+                        leftTopArr[+event.target.id.substring(14)] = xPos+ " " + yPos;
+                        console.log(leftTopArr);
+                        $.ajax({
+                            url: "{% url 'saveGraphPositionStaging' %}",
+                            type: "post",
+                            data: {
+                              'savedGraphPosition': leftTopArr.join(","),
+                                'index': +event.target.id.substring(14),
+                            },
+                            success: function (data) {
+                              return;
+                            }
+                        });
+                    }})
                     .resizable({handles: 'n, e, s, w, ne, se, sw, nw',
                         stop: function(event, ui) {
                         var w = ui.size.width;
@@ -279,7 +300,12 @@
                 var graphHist = allGraphs[jj].getElementsByClassName('graphHist')[0].value;
                 allGraphs[jj].style.height = allGraphs[jj].getElementsByClassName('graphHeight')[0].value + "px";
                 allGraphs[jj].style.width = allGraphs[jj].getElementsByClassName('graphWidth')[0].value + "px";
-                widthHeightArr[jj] = allGraphs[jj].width + " " + allGraphs[jj].height + " " + jj;
+                allGraphs[jj].style.left = allGraphs[jj].getElementsByClassName('graphLeft')[0].value + "px";
+                allGraphs[jj].style.top = allGraphs[jj].getElementsByClassName('graphTop')[0].value + "px";
+                allGraphs[jj].style.position = "absolute";
+                widthHeightArr[jj] = allGraphs[jj].getElementsByClassName('graphHeight')[0].value + " " + allGraphs[jj].getElementsByClassName('graphWidth')[0].value + " " + jj;
+                leftTopArr[jj] = allGraphs[jj].getElementsByClassName('graphLeft')[0].value + " " + allGraphs[jj].getElementsByClassName('graphTop')[0].value + " " + jj;
+                console.log(leftTopArr[jj]);
                 if(graphType == "bar"){
                     drawGraph(graphXAxisVar, graphYAxisVar, graphOp, graphTitle, graphXAxisLabel, graphYAxisLabel, jj, graphDataset)
                     
