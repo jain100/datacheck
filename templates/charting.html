@@ -514,10 +514,21 @@
                     })
                 .entries(data);
                 if(newData.length > maxUniqueVarCount){
-                    secondMaxUniqueVar = maxUniqueVar;
-                    maxUniqueVar = Object.keys(dataValues)[i];
-                    secondMaxUniqueVarCount = maxUniqueVarCount;
-                    maxUniqueVarCount = newData.length;
+                    if(!$.isNumeric(newData[0].key)){
+                        console.log(newData[0].key);
+                        secondMaxUniqueVar = Object.keys(dataValues)[i];
+                        secondMaxUniqueVarCount = newData.length;
+                    }else{
+                        if(maxUniqueVar != ""){
+                            secondMaxUniqueVar = maxUniqueVar;
+                            maxUniqueVar = Object.keys(dataValues)[i];
+                            secondMaxUniqueVarCount = maxUniqueVarCount;
+                            maxUniqueVarCount = newData.length;
+                        }else{
+                            maxUniqueVar = Object.keys(dataValues)[i];
+                            maxUniqueVarCount = newData.length;
+                        }
+                    }
                 }else if(newData.length > secondMaxUniqueVarCount){
                     secondMaxUniqueVar = Object.keys(dataValues)[i];
                     secondMaxUniqueVarCount = newData.length;
@@ -632,10 +643,18 @@
               }
 
             d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
-                xAxisVar = this.value;
-                barXVar = xAxisVar;
-                if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                    changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
+                if(yAxisVar != this.value){
+                    xAxisVar = this.value;
+                    barXVar = xAxisVar;
+                    if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                        changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
+                    }
+                }else{
+                    for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                        if(document.getElementById('xOption'+i).value == barXVar){
+                            d3.select('#xOption'+i).property('checked', true);
+                        }
+                    }
                 }
             });
 
@@ -668,10 +687,18 @@
               }
 
             d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
-                yAxisVar = this.value;
-                barYVar = yAxisVar;
-                if(barXVar!="null" && barYVar != "null" && barOp!="null"){
-                    changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
+                if(xAxisVar != this.value){
+                    yAxisVar = this.value;
+                    barYVar = yAxisVar;
+                    if(barXVar!="null" && barYVar != "null" && barOp!="null"){
+                        changeGraph(data, xAxisVar, yAxisVar, operation, barxAxisLabel, baryAxisLabel, barchartTitle);
+                    }
+                }else{
+                    for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                        if(document.getElementById('yOption'+i).value == barYVar){
+                            d3.select('#yOption'+i).property('checked', true);
+                        }
+                    }
                 }
             });
 
@@ -1263,10 +1290,18 @@
               }
 
             d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
-                xAxisVar = this.value;
-                pieXVar = xAxisVar;
-                if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                    changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
+                if(yAxisVar != this.value){
+                    xAxisVar = this.value;
+                    pieXVar = xAxisVar;
+                    if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                        changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
+                    }
+                }else{
+                    for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                        if(document.getElementById('xOption'+i).value == pieXVar){
+                            d3.select('#xOption'+i).property('checked', true);      
+                        }
+                    }
                 }
             });
 
@@ -1302,10 +1337,18 @@
               }
 
             d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
-                yAxisVar = this.value;
-                pieYVar = yAxisVar;
-                if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
-                    changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
+                if(xAxisVar != this.value){
+                    yAxisVar = this.value;
+                    pieYVar = yAxisVar;
+                    if(pieXVar!="null" && pieYVar !="null" && pieOp !="null"){
+                        changePie(data, xAxisVar, yAxisVar, operation, piechartTitle);
+                    }
+                }else{
+                    for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                        if(document.getElementById('yOption'+i).value == pieYVar){
+                            d3.select('#yOption'+i).property('checked', true);
+                        }
+                    }
                 }
             });
 
@@ -1636,10 +1679,25 @@
               }
 
             d3.selectAll(("input[name='checkbox_options_x']")).on("change", function(){
-                xAxisVar = this.value;
-                lineXVar = xAxisVar;
-                if(lineXVar!="null" && lineYVar[0] !="null" && lineOp !="null"){
-                    changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
+                var flagii=0;
+                for(var ii=0; ii<lineYVar.length; ii++){
+                   if(this.value == lineYVar[ii]){
+                        flagii=1;
+                        break;
+                    }
+                }
+                if(flagii==0){
+                    xAxisVar = this.value;
+                    lineXVar = xAxisVar;
+                    if(lineXVar!="null" && lineYVar[0] !="null" && lineOp !="null"){
+                        changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
+                    }
+                }else{
+                    for(var i=0; i<Object.keys(dataValues).length; i++ ){
+                        if(document.getElementById('xOption'+i).value == lineXVar){
+                            d3.select('#xOption'+i).property('checked', true);
+                        }
+                    }
                 }
             });
 
@@ -1675,21 +1733,26 @@
               }
 
             d3.selectAll(("input[name='checkbox_options_y']")).on("change", function(){
-                if(this.checked){
-                    yAxisVar.push(this.value);
-                    lineYVar.push(this.value);
+                if(xAxisVar != this.value){
+                    console.log("Here");
+                    if(this.checked){
+                        yAxisVar.push(this.value);
+                        lineYVar.push(this.value);
+                    }else{
+                        var index = yAxisVar.indexOf(this.value);
+                        if (index !== -1){
+                            yAxisVar.splice(index, 1);
+                        }
+                        var index2 = lineYVar.indexOf(this.value);
+                        if (index2 !== -1){
+                            lineYVar.splice(index, 1);
+                        }
+                    }
+                    if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
+                        changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
+                    }
                 }else{
-                    var index = yAxisVar.indexOf(this.value);
-                    if (index !== -1){
-                        yAxisVar.splice(index, 1);
-                    }
-                    var index2 = lineYVar.indexOf(this.value);
-                    if (index2 !== -1){
-                        lineYVar.splice(index, 1);
-                    }
-                }
-                if(lineXVar!="null" && lineYVar[0] != "null" && lineOp != "null"){
-                    changeLines(data, xAxisVar, yAxisVar, operation, linexAxisLabel, lineyAxisLabel, linechartTitle);
+                    d3.select('#'+this.id).property('checked', false);
                 }
             });
                       
