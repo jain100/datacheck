@@ -2265,6 +2265,7 @@ console.log(Object.keys(datavalues)[0]);
         d3.selectAll("input[type='checkbox']").remove();
         d3.selectAll("h6").remove();
         d3.selectAll("label").remove();
+		d3.selectAll("legend").remove();
         graphType = x;
 		
 		
@@ -2545,9 +2546,12 @@ console.log(Object.keys(datavalues)[0]);
 			ymax=d3.max(maxArray,function(d){return d});	
 			
 		xScale.domain(xvalues);
+		colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
 		
-		   var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-            colorScale.domain([0,ymax]);
+		   var colorScale = d3.scaleQuantize().domain([0,ymax]).range(colors);
+			var legendData = d3.range(0,ymax,Math.round(ymax/9))
+
+			
 			
 		var xAxis = d3.axisTop(xScale);
         var yAxis = d3.axisLeft(yScale);
@@ -2580,6 +2584,32 @@ console.log(Object.keys(datavalues)[0]);
             .attr("height", yScale.bandwidth())
 			.attr("width",xScale.bandwidth());
 		
+			
+			
+			
+			var legend = svg.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+			.attr("font-family", "sans-serif")
+			.attr("font-size", 10)
+			.attr("text-anchor", "end")
+			.selectAll("g")
+			.data(legendData)
+			.enter().append("g")
+			
+
+		legend.append("rect")
+      .attr("y", height-20 )
+	    .attr("x",  function(d, i) { return  i * 40;  })
+      .attr("width", 40)
+      .attr("height", 30)
+      .attr("fill", function(d){return colorScale(d);});
+
+			legend.append("text")
+		.attr("y", height-22)
+		.attr("x",  function(d, i) { return  i * 40+30;  })
+		.text(function(d) { return "≥ " +d; });
+	  
+						 
 		
 		
 		}
