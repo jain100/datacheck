@@ -124,7 +124,7 @@ testpath==0.3.1
 tornado==4.5.3
 traitlets==4.3.2
 uritemplate==3.0.0
-urllib3==1.22
+urllib3==1.26.5
 views==0.3
 wcwidth==0.1.7
 webencodings==0.5.1
